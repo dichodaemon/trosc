@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+import sys
+import os
+
+BASE_DIR = os.path.abspath( os.path.join( os.path.dirname( __file__ ), ".." ) )
+path     = os.path.abspath( os.path.join( BASE_DIR, "python" ) )
+sys.path.append( path )
+
+import rospy
+import numpy as np
+
+from e_motion_perception_msgs.msg import Lane
+from car_navigation_msgs.msg import Control, Status, Obstacle, Obstacles
+
+import sysv_ipc
+import trosc
+
+from math import *
+
+facade = None
+control = Control()
+lane_pub = rospy.Publisher( "road", Lane )
+status_pub = rospy.Publisher( "status", Status )
+obstacle_pub = rospy.Publisher( "obstacles", Obstacles )
+
+
+def facade_callback( event ):
+  global facade
+  global control
+
+  global lane_pub
+  global status_pub
+  global obstacle_pub
+  try:
+    if facade == None:
+      facade = trosc.Facade( 6000 )
+    s = facade.status
+
+    status = Status()
+    status.speed = s.speed
+    status.rpm = s.rpm
+    status.gear = s.gear
+    status.gear_ratio = s.gear_ratio
+    status.lower_gear_ratio = s.lower_gear_ratio
+    status.max_rpm = s.max_rpm
+    status.wheel_radius = s.wheel_radius
+    status_pub.publish( status )
+
+    l = Lane()
+    l.width = s.track_width
+    l.ch = s.track_curvature
+    l.cl = 0.0
+    l.car_position = 0
+    l.y0 = s.track_distance
+    l.relative_yaw = s.track_yaw
+    lane_pub.publish( l )
+
+    c = trosc.Command()
+    c.steering = control.steering
+    c.acceleration = control.acceleration
+    c.brake = control.brake
+    c.gear = control.gear
+    facade.command = c
+
+    n, obstacles = facade.obstacles
+    obs = Obstacles()
+    for i in xrange( n ):
+      o = Obstacle()
+      x = obstacles[i].x - s.x
+      y = obstacles[i].y - s.y
+      angle = atan2( y, x )
+      o.id = obstacles[i].id
+      o.pose.x = x * cos( -angle ) - y * sin( angle )
+      o.pose.y = y * cos( angle ) + x * sin( angle )
+      o.pose.theta = atan2( obstacles[i].vY, obstacles[i].vX ) + angle
+      o.speed = ( obstacles[i].vX ** 2 + obstacles[i].vY ** 2 ) ** 0.5
+      obs.obstacles.append( o )
+    obstacle_pub.publish( obs )
+  except sysv_ipc.ExistentialError:
+    facade = None
+
+def control_callback( c ):
+  global control
+  control.steering = c.steering
+  control.acceleration = c.acceleration
+  control.brake = c.brake
+  control.gear = c.gear
+
+def listener():
+  rospy.init_node( 'trosc' )
+  rospy.Timer( rospy.Duration( 0.01 ), facade_callback )
+  rospy.Subscriber( "control", Control, control_callback )
+  rospy.spin()
+
+listener()

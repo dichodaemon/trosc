@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+import sys
+import os
+
+BASE_DIR = os.path.abspath( os.path.join( os.path.dirname( __file__ ), ".." ) )
+path     = os.path.abspath( os.path.join( BASE_DIR, "python" ) )
+sys.path.append( path )
+
+import rospy
+import numpy as np
+
+from e_motion_perception_msgs.msg import Lane
+from car_navigation_msgs.msg import Control, Status
+
+import cars.car1 as car1
+
+lane   = None
+status = None
+control_pub = rospy.Publisher( "control", Control )
+
+def drive( lane, status ):
+  global control_pub
+  if lane.width != 0.0:
+    c = Control()
+    c.steering = car1.steering( lane.relative_yaw, lane.ch, lane.y0, lane.width )
+    c.acceleration = car1.acceleration(
+      status.speed, car1.max_speed( lane.ch, lane.relative_yaw, lane.y0 ),
+      status.gear_ratio, status.max_rpm, status.wheel_radius
+    )
+    c.brake = car1.brake()
+    c.gear = car1.gear( 
+      status.speed, status.gear, status.gear_ratio, status.lower_gear_ratio,
+      status.max_rpm, status.wheel_radius
+    )
+    control_pub.publish( c )
+
+def status_callback( s ):
+  global lane
+  global status
+  status = s
+  if lane != None:
+    drive( lane, status )
+
+def lane_callback( l ):
+  global lane
+  global status
+  lane = l
+  if status != None:
+    drive( lane, status )
+
+def listener():
+  rospy.init_node( 'trosc' )
+  rospy.Subscriber( "status", Status, status_callback )
+  rospy.Subscriber( "road", Lane, lane_callback )
+  rospy.spin()
+
+listener()

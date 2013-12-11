@@ -1,0 +1,4 @@
+<launch>
+  <node name="trosc" pkg="trosc" type="trosc" />
+  <node name="car1" pkg="car1" type="car1" />
+</launch>
