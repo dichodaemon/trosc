@@ -2,19 +2,27 @@ import numpy as np
 from math import *
 import sys
 
-def steering( track_yaw, track_curvature, track_distance, track_width ):
+def steering( 
+  track_yaw, track_curvature, track_distance, track_width, 
+  next_curvature, next_distance
+):
   yaw_error = track_yaw 
+  #if next_curvature > 0.0:
+    #track_distance -= track_width / 2 - 2.0
+  #elif next_curvature < 0.0:
+    #track_distance += track_width / 2 - 2.0
+  #lane_error = atan2( track_distance, next_distance )
   if track_curvature > 0.0:
-    track_distance -= 3.0
-  else:
-    track_distance += 3.0
+    track_distance -= track_width / 2 - 2.0
+  elif track_curvature < 0.0:
+    track_distance += track_width / 2 - 2.0
   lane_error = atan2( track_distance, 20 )
   return -yaw_error - lane_error
 
 def max_speed( curvature, track_yaw, track_distance, mu = 0.3 ):
   result = 0
   if curvature == 0:
-    result = 20
+    result = 1E6
   else:
     result = ( mu * 9.81 / np.abs( curvature ) ) ** 0.5
   return result

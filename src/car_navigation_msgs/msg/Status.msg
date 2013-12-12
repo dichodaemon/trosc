@@ -6,4 +6,6 @@ float32 gear_ratio
 float32 lower_gear_ratio
 float32 max_rpm
 float32 wheel_radius
+float32 next_curvature
+float32 next_distance
 

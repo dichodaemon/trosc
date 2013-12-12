@@ -44,7 +44,10 @@ def facade_callback( event ):
     status.lower_gear_ratio = s.lower_gear_ratio
     status.max_rpm = s.max_rpm
     status.wheel_radius = s.wheel_radius
+    status.next_curvature = s.next_curvature
+    status.next_distance  = s.next_distance
     status_pub.publish( status )
+    sys.stderr.write( "nc: %f, nd: %f\n" % ( s.next_curvature, s.next_distance  ) )
 
     l = Lane()
     l.width = s.track_width

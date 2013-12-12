@@ -22,7 +22,10 @@ def drive( lane, status ):
   global control_pub
   if lane.width != 0.0:
     c = Control()
-    c.steering = car1.steering( lane.relative_yaw, lane.ch, lane.y0, lane.width )
+    c.steering = car1.steering( 
+      lane.relative_yaw, lane.ch, lane.y0, lane.width,
+      status.next_curvature, status.next_distance
+    )
     c.acceleration = car1.acceleration(
       status.speed, car1.max_speed( lane.ch, lane.relative_yaw, lane.y0 ),
       status.gear_ratio, status.max_rpm, status.wheel_radius

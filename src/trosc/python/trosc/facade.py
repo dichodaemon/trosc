@@ -19,6 +19,8 @@ class Status( ctypes.Structure ):
                ( "track_distance", ctypes.c_float ),
                ( "track_curvature", ctypes.c_float ),
                ( "track_width", ctypes.c_float ),
+               ( "next_curvature", ctypes.c_float ),
+               ( "next_distance", ctypes.c_float ),
                ( "speed", ctypes.c_float ),
                ( "yaw", ctypes.c_float ),
                ( "x", ctypes.c_float ),
