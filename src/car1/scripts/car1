@@ -22,29 +22,36 @@ def drive( lane, status ):
   global control_pub
   if lane.width != 0.0:
     c = Control()
+    mu = 2.0
 
-    curvature = lane.ch
-    if status.next_distance < status.speed * 1:
-      curvature = status.next_curvature
-    desired_speed = car1.max_speed( curvature )
-    sys.stderr.write( "speed: %f, desired_speed: %f, braking: %f, next_curve: %f\n"  % ( status.speed, desired_speed, status.speed * 1, status.next_distance ) )
+    desired_speed_1 = car1.max_speed( lane.ch, mu )
+    desired_speed_2 = car1.max_speed( status.next_curvature, mu )
+    brake_distance_2 = car1.braking_distance( status.speed, desired_speed_2, mu )
+
+    desired_speed = desired_speed_1
+    c.brake = 0.0
+
+    if status.speed > desired_speed_1 + 10:
+      c.brake = 0.5
+    if desired_speed > desired_speed_2:
+      if brake_distance_2 < status.next_distance:
+        desired_speed = desired_speed_2
+        if status.speed > desired_speed_2 + 10:
+          c.brake = 1.0
+
     c.acceleration = car1.acceleration(
       status.speed, desired_speed,
-      status.gear_ratio, status.max_rpm, status.wheel_radius
+      status.gear_ratio, status.max_rpm, status.wheel_radius, status.rpm
     )
-    if status.next_distance < status.speed * 0.5:
-      curvature = status.next_curvature
-    else:
-      curvature = lane.ch
     c.steering = car1.steering( 
-      lane.relative_yaw, curvature, lane.y0, lane.width,
-      status.next_curvature, status.next_distance
+      lane.relative_yaw, lane.ch, lane.y0, lane.width
     )
-    c.brake = car1.brake()
     c.gear = car1.gear( 
       status.speed, status.gear, status.gear_ratio, status.lower_gear_ratio,
       status.max_rpm, status.wheel_radius
     )
+    #sys.stderr.write( "steering: %f, speed: %f, desired_speed_1: %f, desired_speed_2: %f, next_distance: %f, brake_distance_2: %f\n"  % ( c.steering, status.speed, desired_speed_1, desired_speed_2, status.next_distance, brake_distance_2 ) )
+    #sys.stderr.write( "acceleration: %f, speed: %f, desired speed: %ff\n"  % ( c.acceleration, status.speed, desired_speed ) )
     control_pub.publish( c )
 
 def status_callback( s ):
