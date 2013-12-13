@@ -22,13 +22,23 @@ def drive( lane, status ):
   global control_pub
   if lane.width != 0.0:
     c = Control()
-    c.steering = car1.steering( 
-      lane.relative_yaw, lane.ch, lane.y0, lane.width,
-      status.next_curvature, status.next_distance
-    )
+
+    curvature = lane.ch
+    if status.next_distance < status.speed * 1:
+      curvature = status.next_curvature
+    desired_speed = car1.max_speed( curvature )
+    sys.stderr.write( "speed: %f, desired_speed: %f, braking: %f, next_curve: %f\n"  % ( status.speed, desired_speed, status.speed * 1, status.next_distance ) )
     c.acceleration = car1.acceleration(
-      status.speed, car1.max_speed( lane.ch, lane.relative_yaw, lane.y0 ),
+      status.speed, desired_speed,
       status.gear_ratio, status.max_rpm, status.wheel_radius
+    )
+    if status.next_distance < status.speed * 0.5:
+      curvature = status.next_curvature
+    else:
+      curvature = lane.ch
+    c.steering = car1.steering( 
+      lane.relative_yaw, curvature, lane.y0, lane.width,
+      status.next_curvature, status.next_distance
     )
     c.brake = car1.brake()
     c.gear = car1.gear( 

@@ -12,14 +12,14 @@ def steering(
   #elif next_curvature < 0.0:
     #track_distance += track_width / 2 - 2.0
   #lane_error = atan2( track_distance, next_distance )
-  if track_curvature > 0.0:
-    track_distance -= track_width / 2 - 2.0
-  elif track_curvature < 0.0:
-    track_distance += track_width / 2 - 2.0
+  #if track_curvature > 0.0:
+    #track_distance -= track_width / 2 - 2.0
+  #elif track_curvature < 0.0:
+    #track_distance += track_width / 2 - 2.0
   lane_error = atan2( track_distance, 20 )
   return -yaw_error - lane_error
 
-def max_speed( curvature, track_yaw, track_distance, mu = 0.3 ):
+def max_speed( curvature, mu = 0.3 ):
   result = 0
   if curvature == 0:
     result = 1E6
