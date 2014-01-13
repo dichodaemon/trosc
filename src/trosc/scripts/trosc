@@ -70,11 +70,11 @@ def facade_callback( event ):
       o = Obstacle()
       x = obstacles[i].x - s.x
       y = obstacles[i].y - s.y
-      angle = atan2( y, x )
+      angle = s.yaw
       o.id = obstacles[i].id
-      o.pose.x = x * cos( -angle ) - y * sin( angle )
-      o.pose.y = y * cos( angle ) + x * sin( angle )
-      o.pose.theta = atan2( obstacles[i].vY, obstacles[i].vX ) + angle
+      o.pose.x = x * cos( -angle ) - y * sin( -angle )
+      o.pose.y = y * cos( -angle ) + x * sin( -angle )
+      o.pose.theta = atan2( obstacles[i].vY, obstacles[i].vX ) - angle
       o.speed = ( obstacles[i].vX ** 2 + obstacles[i].vY ** 2 ) ** 0.5
       obs.obstacles.append( o )
     obstacle_pub.publish( obs )
