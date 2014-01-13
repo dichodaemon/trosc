@@ -20,7 +20,7 @@ def steering(
 
 def braking_distance( speed, desired_speed, mu = 0.3 ):
   if speed < desired_speed:
-    return 1E6
+    return 0
   else:
     return ( speed ** 2 - desired_speed ** 2 ) / ( 2.0 * mu * 9.81 ) + 2.0
 
@@ -37,11 +37,9 @@ def acceleration(
   gear_ratio, max_rpm, wheel_radius, rpm
 ) :
   if desired_speed < speed:
-    sys.stderr.write( "zero acceleration\n" )
     return 0.0
 
   if speed + 10 < desired_speed:
-    sys.stderr.write( "max acceleration\n" )
     return 1.0
     #wheel_diameter = wheel_radius * 2 * pi
     #desired_rpm = ( desired_speed / wheel_diameter ) * gear_ratio
@@ -49,7 +47,6 @@ def acceleration(
     desired_rpm = rpm * speed / desired_speed
   
   result = min( desired_rpm / max_rpm, 1.0 )
-  sys.stderr.write( "acceleration: %f, speed:%f, desired_speed: %f, gear ratio: %f, desired_rpm: %f, max_rpm: %f, rpm: %f\n" % ( result, speed, desired_speed, gear_ratio, desired_rpm, max_rpm, rpm ) ) 
   return result
 
 def gear( 

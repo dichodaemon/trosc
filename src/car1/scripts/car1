@@ -38,6 +38,14 @@ def drive( lane, status ):
         desired_speed = desired_speed_2
         if status.speed > desired_speed_2 + 10:
           c.brake = 1.0
+    if desired_speed > status.speed:
+      sys.stderr.write( "Accelerating" )
+    elif c.brake > 0.0:
+      sys.stderr.write( "Braking" )
+    else:
+      sys.stderr.write( "Constant" )
+
+    sys.stderr.write( " Next segment: %f Brake distance: %f\n" % ( status.next_distance, brake_distance_2 )  )
 
     c.acceleration = car1.acceleration(
       status.speed, desired_speed,
@@ -65,8 +73,8 @@ def lane_callback( l ):
   global lane
   global status
   lane = l
-  if status != None:
-    drive( lane, status )
+  #if status != None:
+    #drive( lane, status )
 
 def listener():
   rospy.init_node( 'trosc' )
