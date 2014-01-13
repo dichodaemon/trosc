@@ -22,7 +22,7 @@ def drive( lane, status ):
   global control_pub
   if lane.width != 0.0:
     c = Control()
-    mu = 2.0
+    mu = 3.0
 
     desired_speed_1 = car1.max_speed( lane.ch, mu )
     desired_speed_2 = car1.max_speed( status.next_curvature, mu )
