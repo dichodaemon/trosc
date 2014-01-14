@@ -45,7 +45,7 @@ visualization_msgs::Marker visualMarker(double x, double y, int id){
 		st = s.str();
  
 	    visualization_msgs::Marker marker;
-		marker.header.frame_id = "/my_frame";
+		marker.header.frame_id = "/world";
 		marker.header.stamp = ros::Time();
 		marker.ns = "track_coordinates" + st;
 		marker.id = id;
@@ -86,7 +86,7 @@ void Callback_display(const grid_navigation::Obstacles& obstacles){
 	vector<visualization_msgs::Marker> markersP;
 	
   nav_msgs::GridCells gco;
-  gco.header.frame_id = "/my_frame";
+  gco.header.frame_id = "/world";
   gco.header.stamp = ros::Time();
   gco.cell_width = RESOLUTION;
   gco.cell_height = RESOLUTION;

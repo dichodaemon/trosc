@@ -57,7 +57,7 @@ visualization_msgs::Marker visualMarker(double x, double y, int id){
 		st = s.str();
  
 	    visualization_msgs::Marker marker;
-		marker.header.frame_id = "/my_frame";
+		marker.header.frame_id = "/world";
 		marker.header.stamp = ros::Time();
 		marker.ns = "track_coordinates" + st;
 		marker.id = id;
@@ -90,7 +90,7 @@ visualization_msgs::Marker visualMarkerPoint(double x, double y, int id){
 		st = s.str();
  
 	    visualization_msgs::Marker marker;
-		marker.header.frame_id = "/my_frame";
+		marker.header.frame_id = "/world";
 		marker.header.stamp = ros::Time();
 		marker.ns = "point_coordinates" + st;
 		marker.id = id;
@@ -121,7 +121,7 @@ geometry_msgs::PoseStamped PoseArrow(double x, double y, double theta){
  
 geometry_msgs::PoseStamped carpose;
 carpose.header.stamp = ros::Time::now();
-carpose.header.frame_id = "/my_frame";
+carpose.header.frame_id = "/world";
 carpose.pose.position.x = x;
 carpose.pose.position.y = y;
 carpose.pose.position.z = 0;
@@ -213,7 +213,7 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	
 	// create a grid cell message for obstacles
   nav_msgs::GridCells gco;
-  gco.header.frame_id = "/my_frame";
+  gco.header.frame_id = "/world";
   gco.header.stamp = ros::Time();
   gco.cell_width = RESOLUTION;
   gco.cell_height = RESOLUTION;
@@ -391,7 +391,7 @@ return 0;
 		st = s.str();
  
 	    visualization_msgs::Marker marker;
-		marker.header.frame_id = "/my_frame";
+		marker.header.frame_id = "/world";
 		marker.header.stamp = ros::Time();
 		marker.ns = "point_coordinates" + st;
 		marker.id = id;
