@@ -31,7 +31,9 @@ class Obstacle( ctypes.Structure ):
                ( "x", ctypes.c_float ),
                ( "y", ctypes.c_float ),
                ( "vX", ctypes.c_float ),
-               ( "vY", ctypes.c_float ) ]
+               ( "vY", ctypes.c_float ),
+               ( "width", ctypes.c_float ),
+               ( "height", ctypes.c_float ) ]
 
 class Buffer( ctypes.Structure ):
   _fields_ = [ ( "command", Command ), 

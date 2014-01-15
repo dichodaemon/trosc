@@ -127,28 +127,32 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	///ry=0;yo=0;
 	///cout<<"width "<<wd<<endl;
 	
-	Mat a = transform_trackspace(0,wd/2,-1);
+	//Mat a = transform_trackspace(0,wd/2,-1);
+  Mat a = (Mat_<double>(1,2)<<0,wd/2);
 	grid_navigation::Obstacle To1;
 	To1.id  = -1;
 	To1.pose.x = a.at<double>(0,0);
 	To1.pose.y = a.at<double>(0,1);
 	obs.obstacles.push_back(To1); 
 	
-	Mat b = transform_trackspace(200,wd/2,-1);
+//	Mat b = transform_trackspace(200,wd/2,-1);
+  Mat b = (Mat_<double>(1,2)<<200,wd/2);
 	grid_navigation::Obstacle To2;
 	To2.id  = -1;
 	To2.pose.x = b.at<double>(0,0);
 	To2.pose.y = b.at<double>(0,1);
 	obs.obstacles.push_back(To2); 
 	
-	Mat c = transform_trackspace(200,-wd/2,-1);
+	//Mat c = transform_trackspace(200,-wd/2,-1);
+  Mat c = (Mat_<double>(1,2)<<200,-wd/2);
 	grid_navigation::Obstacle To3;
 	To3.id  = -1;
 	To3.pose.x = c.at<double>(0,0);
 	To3.pose.y = c.at<double>(0,1);
 	obs.obstacles.push_back(To3); 
 	
-	Mat d = transform_trackspace(0,-wd/2,-1);
+	//Mat d = transform_trackspace(0,-wd/2,-1);
+  Mat d = (Mat_<double>(1,2)<<0,-wd/2);
 	grid_navigation::Obstacle To4;
 	To4.id  = -1;
 	To4.pose.x = d.at<double>(0,0);
