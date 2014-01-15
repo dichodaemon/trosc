@@ -5,7 +5,6 @@
 #include <geometry_msgs/Pose2D.h>
 #include <e_motion_perception_msgs/Lane.h>
 #include <car_navigation_msgs/Obstacles.h>
-#include <grid_navigation/Obstacles.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -37,7 +36,7 @@ ros::Publisher vis_pub;
 
 
 
-visualization_msgs::Marker visualMarker(double x, double y, int id){
+visualization_msgs::Marker visualMarker(double x, double y, double theta, double width, double height, int id){
  
 		std::ostringstream s;
 		s<<id;
@@ -45,53 +44,56 @@ visualization_msgs::Marker visualMarker(double x, double y, int id){
 		st = s.str();
  
 	    visualization_msgs::Marker marker;
-		marker.header.frame_id = "/world";
+		marker.header.frame_id = "/my_frame";
 		marker.header.stamp = ros::Time();
 		marker.ns = "track_coordinates" + st;
 		marker.id = id;
-		marker.type = visualization_msgs::Marker::CYLINDER;
+		marker.type = visualization_msgs::Marker::CUBE;
 		marker.action = visualization_msgs::Marker::ADD;
 		marker.pose.position.x = x;
 		marker.pose.position.y = y;
 		marker.pose.position.z = 0;
 		marker.pose.orientation.x = 0.0;
 		marker.pose.orientation.y = 0.0;
-		marker.pose.orientation.z = 0.0;
+		marker.pose.orientation.z = theta;
 		marker.pose.orientation.w = 1.0;
+		//cout<<height<<endl;
+		//cout<<width<<endl;
 		
 		{
-		marker.scale.x =.4;
-		marker.scale.y =.4;
-		marker.scale.z =.4;
+		marker.scale.x =height+1;
+		marker.scale.y =width+0.5;
+		marker.scale.z =.1;
 		marker.color.a = 1.0;
-		marker.color.r = 0.0;
-		marker.color.b = 1.0;
-		marker.color.g = 1.0;
+		marker.color.r = 1.0;
+		marker.color.b = 0.0;
+		marker.color.g = 0.0;
 		}
 		
 		
 	
 		return marker;
+		//vis_pub.publish(marker);
 }
 
 
 
 
 
-void Callback_display(const grid_navigation::Obstacles& obstacles){
+void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
 	
 	vector<Point3f> t_points;
 	vector<visualization_msgs::Marker> markers;
 	vector<visualization_msgs::Marker> markersP;
 	
   nav_msgs::GridCells gco;
-  gco.header.frame_id = "/world";
+  gco.header.frame_id = "/my_frame";
   gco.header.stamp = ros::Time();
   gco.cell_width = RESOLUTION;
   gco.cell_height = RESOLUTION;
 	
 	for(int i = 0;i<obstacles.obstacles.size(); i++){
-		t_points.push_back(Point3f(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y, obstacles.obstacles[i].id));	
+		t_points.push_back(Point3f(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y, obstacles.obstacles[i].pose.theta));	
 	}
 	
 	
@@ -101,10 +103,10 @@ void Callback_display(const grid_navigation::Obstacles& obstacles){
 	vector<geometry_msgs::Point> obstaclerepo;
 	for(vector<Point3f>::iterator it = t_points.begin(); it!= t_points.end(); ++it) {
 		
-		markers.push_back(visualMarker((it)->x,(it)->y,count));
-		count++;
+		markers.push_back(visualMarker((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width,obstacles.obstacles[count].height, count));
 		
-		if((it)->z !=-1)
+		
+			if(obstacles.obstacles[count].id !=-1)
 			{
 			geometry_msgs::Point a;
 			a.x = ((it)->x)* RESOLUTION;
@@ -112,7 +114,7 @@ void Callback_display(const grid_navigation::Obstacles& obstacles){
 			a.z = 0.0;
 			obstaclerepo.push_back(a);
 			}
-		
+		count++;
 	}
 	
 	gco.cells.resize(obstaclerepo.size());

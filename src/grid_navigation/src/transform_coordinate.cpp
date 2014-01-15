@@ -5,7 +5,6 @@
 #include <geometry_msgs/Pose2D.h>
 #include <e_motion_perception_msgs/Lane.h>
 #include <car_navigation_msgs/Obstacles.h>
-#include <grid_navigation/Obstacles.h>
 #include <cstring>
 #include <sstream>
 #include <vector>
@@ -102,7 +101,7 @@ ry = msg->relative_yaw;
 void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	
 	vector<Point2f> t_points;
-	grid_navigation::Obstacles obs;
+	car_navigation_msgs::Obstacles obs;
 	
 	int i;
 
@@ -111,7 +110,7 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	
 	Mat points = transform_trackspace(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y,obstacles.obstacles[i].id);
 	
-	grid_navigation::Obstacle O;
+	car_navigation_msgs::Obstacle O;
 	O.id = obstacles.obstacles[i].id;
 	O.pose.x = points.at<double>(0,0);
 	O.pose.y = points.at<double>(0,1);
@@ -120,7 +119,12 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	
 	}
 	
-	
+	car_navigation_msgs::Obstacle own_car;
+	own_car.id = -2;
+	own_car.pose.x = 0;
+	own_car.pose.y = yo;
+	own_car.pose.theta = ry;
+	obs.obstacles.push_back(own_car); 
 	
 
 	///Checking the transformation.
@@ -128,35 +132,40 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	///cout<<"width "<<wd<<endl;
 	
 	//Mat a = transform_trackspace(0,wd/2,-1);
-  Mat a = (Mat_<double>(1,2)<<0,wd/2);
-	grid_navigation::Obstacle To1;
+	Mat a = (Mat_<double>(1,2)<<0,wd/2);
+	
+	car_navigation_msgs::Obstacle To1;
 	To1.id  = -1;
 	To1.pose.x = a.at<double>(0,0);
 	To1.pose.y = a.at<double>(0,1);
+	To1.pose.theta = 0;
 	obs.obstacles.push_back(To1); 
 	
-//	Mat b = transform_trackspace(200,wd/2,-1);
-  Mat b = (Mat_<double>(1,2)<<200,wd/2);
-	grid_navigation::Obstacle To2;
+	//Mat b = transform_trackspace(200,wd/2,-1);
+	Mat b = (Mat_<double>(1,2)<<200,wd/2);
+	car_navigation_msgs::Obstacle To2;
 	To2.id  = -1;
 	To2.pose.x = b.at<double>(0,0);
 	To2.pose.y = b.at<double>(0,1);
+	To2.pose.theta = 0;
 	obs.obstacles.push_back(To2); 
 	
 	//Mat c = transform_trackspace(200,-wd/2,-1);
-  Mat c = (Mat_<double>(1,2)<<200,-wd/2);
-	grid_navigation::Obstacle To3;
+	Mat c = (Mat_<double>(1,2)<<200,-wd/2);
+	car_navigation_msgs::Obstacle To3;
 	To3.id  = -1;
 	To3.pose.x = c.at<double>(0,0);
 	To3.pose.y = c.at<double>(0,1);
+	To3.pose.theta = 0;
 	obs.obstacles.push_back(To3); 
 	
 	//Mat d = transform_trackspace(0,-wd/2,-1);
-  Mat d = (Mat_<double>(1,2)<<0,-wd/2);
-	grid_navigation::Obstacle To4;
+	Mat d = (Mat_<double>(1,2)<<0,-wd/2);
+	car_navigation_msgs::Obstacle To4;
 	To4.id  = -1;
 	To4.pose.x = d.at<double>(0,0);
 	To4.pose.y = d.at<double>(0,1);
+	To4.pose.theta = 0;
 	obs.obstacles.push_back(To4); 
 	
 	pub.publish(obs);
@@ -171,7 +180,7 @@ int main(int argc, char*argv[]){
   ros::NodeHandle nh;
   ros::Subscriber subroad = nh.subscribe("/road", 1, Callback_road);
   ros::Subscriber subobst = nh.subscribe("/obstacles", 1000, Callback_Obstacle);
-  pub = nh.advertise<grid_navigation::Obstacles>("/trackcordinates",1000);
+  pub = nh.advertise<car_navigation_msgs::Obstacles>("/trackcordinates",1000);
   ros::spin();
 
 
