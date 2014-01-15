@@ -72,7 +72,6 @@ visualization_msgs::Marker visualMarker(double x, double y, int id){
 		
 	
 		return marker;
-		//vis_pub.publish(marker);
 }
 
 
