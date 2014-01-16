@@ -57,8 +57,7 @@ visualization_msgs::Marker visualMarker(double x, double y, double theta, double
 		marker.pose.orientation.y = 0.0;
 		marker.pose.orientation.z = theta;
 		marker.pose.orientation.w = 1.0;
-		//cout<<height<<endl;
-		//cout<<width<<endl;
+		
 		
 		{
 		marker.scale.x =height;
@@ -73,7 +72,7 @@ visualization_msgs::Marker visualMarker(double x, double y, double theta, double
 		
 	
 		return marker;
-		//vis_pub.publish(marker);
+		
 }
 
 

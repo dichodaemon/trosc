@@ -29,8 +29,8 @@ double wd,ch,cl,yo,ry;
 ros::Publisher pub;
 
 
-//oc means obstacle with respect to the car.
-//oce means obstacle with respect to centre of the curvature.
+///oc means obstacle with respect to the car.
+///oce means obstacle with respect to centre of the curvature.
 
 
 
@@ -61,7 +61,7 @@ Mat transform_trackspace(double x_oc, double y_oc, int id){
 	
 		arclength = alpha*fabs(((1.0/ch)));  //required xco-ordinate
 		ytrack =  X_ot.at<double>(1,0);
-		//cout<<"curvature "<<ch<<endl;
+		
 	}
 	else
 		{
@@ -130,11 +130,9 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	own_car.width = 1.9;
 	own_car.height = 4.5;
 	obs.obstacles.push_back(own_car); 
-	///Checking the transformation.
-	///ry=0;yo=0;
-	///cout<<"width "<<wd<<endl;
 	
-	//Mat a = transform_trackspace(0,wd/2,-1);
+	
+	
 	Mat a = (Mat_<double>(1,2)<<0,wd/2);
 	
 	car_navigation_msgs::Obstacle To1;
@@ -146,7 +144,7 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To1.height = 0.4;
 	obs.obstacles.push_back(To1); 
 	
-	//Mat b = transform_trackspace(200,wd/2,-1);
+	
 	Mat b = (Mat_<double>(1,2)<<200,wd/2);
 	car_navigation_msgs::Obstacle To2;
 	To2.id  = -1;
@@ -157,7 +155,7 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To2.height = 0.4;
 	obs.obstacles.push_back(To2); 
 	
-	//Mat c = transform_trackspace(200,-wd/2,-1);
+	
 	Mat c = (Mat_<double>(1,2)<<200,-wd/2);
 	car_navigation_msgs::Obstacle To3;
 	To3.id  = -1;
@@ -168,7 +166,6 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To3.height = 0.4;
 	obs.obstacles.push_back(To3); 
 	
-	//Mat d = transform_trackspace(0,-wd/2,-1);
 	Mat d = (Mat_<double>(1,2)<<0,-wd/2);
 	car_navigation_msgs::Obstacle To4;
 	To4.id  = -1;
