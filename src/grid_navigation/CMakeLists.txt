@@ -110,17 +110,17 @@ include_directories(
 
 ## Declare a cpp executable
 #add_executable(race_subscriber src/race_subscriber.cpp)
-add_executable(race_subscriber src/transform_coordinate.cpp)
-add_executable(display_subscriber src/display_Tcoordinate.cpp)
+add_executable(transform_coordinate src/transform_coordinate.cpp)
+add_executable(display_Tcoordinate src/display_Tcoordinate.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(grid_navigation_node grid_navigation_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(race_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
+target_link_libraries(transform_coordinate ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
    )
-target_link_libraries(display_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
+target_link_libraries(display_Tcoordinate ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
    )   
 
 ## Add cmake target dependencies of the executable/library

@@ -61,8 +61,8 @@ visualization_msgs::Marker visualMarker(double x, double y, double theta, double
 		//cout<<width<<endl;
 		
 		{
-		marker.scale.x =height+1;
-		marker.scale.y =width+0.5;
+		marker.scale.x =height;
+		marker.scale.y =width;
 		marker.scale.z =.1;
 		marker.color.a = 1.0;
 		marker.color.r = 1.0;
@@ -106,7 +106,7 @@ void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
 		markers.push_back(visualMarker((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width,obstacles.obstacles[count].height, count));
 		
 		
-			if(obstacles.obstacles[count].id !=-1)
+			if(obstacles.obstacles[count].id ==-1)
 			{
 			geometry_msgs::Point a;
 			a.x = ((it)->x)* RESOLUTION;

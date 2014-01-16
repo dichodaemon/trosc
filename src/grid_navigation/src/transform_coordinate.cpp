@@ -115,6 +115,9 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	O.pose.x = points.at<double>(0,0);
 	O.pose.y = points.at<double>(0,1);
 	O.pose.theta = obstacles.obstacles[i].pose.theta;
+	O.width = obstacles.obstacles[i].width;
+	O.height = obstacles.obstacles[i].height;
+	O.speed = obstacles.obstacles[i].speed;
 	obs.obstacles.push_back(O); 
 	
 	}
@@ -124,9 +127,9 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	own_car.pose.x = 0;
 	own_car.pose.y = yo;
 	own_car.pose.theta = ry;
+	own_car.width = 1.9;
+	own_car.height = 4.5;
 	obs.obstacles.push_back(own_car); 
-	
-
 	///Checking the transformation.
 	///ry=0;yo=0;
 	///cout<<"width "<<wd<<endl;
@@ -139,6 +142,8 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To1.pose.x = a.at<double>(0,0);
 	To1.pose.y = a.at<double>(0,1);
 	To1.pose.theta = 0;
+	To1.width  = 0.4;
+	To1.height = 0.4;
 	obs.obstacles.push_back(To1); 
 	
 	//Mat b = transform_trackspace(200,wd/2,-1);
@@ -148,6 +153,8 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To2.pose.x = b.at<double>(0,0);
 	To2.pose.y = b.at<double>(0,1);
 	To2.pose.theta = 0;
+	To2.width  = 0.4;
+	To2.height = 0.4;
 	obs.obstacles.push_back(To2); 
 	
 	//Mat c = transform_trackspace(200,-wd/2,-1);
@@ -157,6 +164,8 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To3.pose.x = c.at<double>(0,0);
 	To3.pose.y = c.at<double>(0,1);
 	To3.pose.theta = 0;
+	To3.width  = 0.4;
+	To3.height = 0.4;
 	obs.obstacles.push_back(To3); 
 	
 	//Mat d = transform_trackspace(0,-wd/2,-1);
@@ -166,6 +175,8 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	To4.pose.x = d.at<double>(0,0);
 	To4.pose.y = d.at<double>(0,1);
 	To4.pose.theta = 0;
+	To4.width  = 0.4;
+	To4.height = 0.4;
 	obs.obstacles.push_back(To4); 
 	
 	pub.publish(obs);
