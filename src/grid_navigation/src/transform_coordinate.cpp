@@ -47,7 +47,6 @@ Mat transform_trackspace(double x_oc, double y_oc, int theta ) {
 	  alpha = atan2( X_oce.at<double>( 0, 0 ), -X_oce.at<double>( 1, 0 ) );
 	
 		arclength = alpha / ch;  //required xco-ordinate
-    yaw = theta + ry - alpha;
 		ytrack =  X_ot.at<double>(1,0);
 		
 	} else if ( ch < 0 ) {
@@ -63,6 +62,8 @@ Mat transform_trackspace(double x_oc, double y_oc, int theta ) {
 		arclength = X_ot.at<double>(0,0);
 		ytrack = X_ot.at<double>(1,0);
 	}
+  yaw = theta;// - alpha;
+
 
 	Mat points = (Mat_<double>(1,3)<<arclength,ytrack, yaw);
 	return points;

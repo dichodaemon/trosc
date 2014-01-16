@@ -30,6 +30,7 @@ class Obstacle( ctypes.Structure ):
   _fields_ = [ ( "id", ctypes.c_byte ),
                ( "x", ctypes.c_float ),
                ( "y", ctypes.c_float ),
+               ( "theta", ctypes.c_float ),
                ( "vX", ctypes.c_float ),
                ( "vY", ctypes.c_float ),
                ( "width", ctypes.c_float ),
