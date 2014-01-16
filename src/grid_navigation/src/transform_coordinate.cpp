@@ -42,7 +42,7 @@ Mat transform_trackspace(double x_oc, double y_oc, int id){
 	
 	Mat Rt 	 = (Mat_<double>(2,2)<<cos(-ry),-sin(-ry),sin(-ry),cos(-ry));
 	Mat X_oc = (Mat_<double>(2,1)<<x_oc,y_oc);
-	Mat Ld 	 = (Mat_<double>(2,1)<<0, -yo);
+	Mat Ld 	 = (Mat_<double>(2,1)<<0, yo);
 	
 	Mat X_ot(2,1,CV_64FC1,Scalar(0));
 	
@@ -53,21 +53,29 @@ Mat transform_trackspace(double x_oc, double y_oc, int id){
 	double alpha;
 
 	
-	if(ch!=0){
-	Mat X_cet = (Mat_<double>(2,1)<<0,-fabs((1.0/ch))); //r2
-	Mat X_oce = X_ot-X_cet; //r3
+	if( ch > 0 ){
+    std::cerr << "> 0; yo = " << yo << "; ry = " << ry << "; x_oc = " << x_oc << "; y_oc = " << y_oc << "\n";
+	  Mat X_cet = (Mat_<double>(2,1) << 0, 1.0 / ch); //r2
+	  Mat X_oce = X_ot - X_cet; //r3
 	
-	alpha = atan2( X_oce.at<double>( 0, 0 ), X_oce.at<double>( 1, 0 ) );
+	  alpha = atan2( X_oce.at<double>( 0, 0 ), -X_oce.at<double>( 1, 0 ) );
 	
-		arclength = alpha*fabs(((1.0/ch)));  //required xco-ordinate
+		arclength = alpha / ch;  //required xco-ordinate
 		ytrack =  X_ot.at<double>(1,0);
 		
-	}
-	else
-		{
+	} else if ( ch < 0 ) {
+    std::cerr << "< 0\n";
+	  Mat X_cet = (Mat_<double>(2,1) << 0, -1.0 / ch); //r2
+	  Mat X_oce = X_ot - X_cet; //r3
+	
+	  alpha = atan2( X_oce.at<double>( 0, 0 ), X_oce.at<double>( 1, 0 ) );
+	
+		arclength = alpha / ch;  //required xco-ordinate
+		ytrack =  X_ot.at<double>(1,0);
+  } else {
 		arclength = X_ot.at<double>(0,0);
 		ytrack = X_ot.at<double>(1,0);
-		}
+	}
 
 	Mat points = (Mat_<double>(1,2)<<arclength,ytrack);
 	return points;
