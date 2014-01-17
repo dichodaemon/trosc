@@ -40,8 +40,8 @@ Mat transform_trackspace(double x_oc, double y_oc, int id){
 	
 	
 	
-	Mat Rt 	 = (Mat_<double>(2,2)<<cos(-ry),-sin(-ry),sin(-ry),cos(-ry));
-	Mat X_oc = (Mat_<double>(2,1)<<x_oc,y_oc);
+	Mat Rt 	 = (Mat_<double>(2,2)<<cos(-ry), -sin(-ry), sin(-ry), cos(-ry));
+	Mat X_oc = (Mat_<double>(2,1)<<x_oc, y_oc);
 	Mat Ld 	 = (Mat_<double>(2,1)<<0, -yo);
 	
 	Mat X_ot(2,1,CV_64FC1,Scalar(0));
@@ -54,8 +54,8 @@ Mat transform_trackspace(double x_oc, double y_oc, int id){
 
 	
 	if(ch!=0){
-	Mat X_cet = (Mat_<double>(2,1)<<0,-fabs((1.0/ch))); //r2
-	Mat X_oce = X_ot-X_cet; //r3
+	Mat X_cet = (Mat_<double>(2,1)<<0, -fabs((1.0/ch))); //r2
+	Mat X_oce = X_ot - X_cet; //r3
 	
 	alpha = atan2( X_oce.at<double>( 0, 0 ), X_oce.at<double>( 1, 0 ) );
 	
@@ -114,7 +114,7 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles){
 	O.id = obstacles.obstacles[i].id;
 	O.pose.x = points.at<double>(0,0);
 	O.pose.y = points.at<double>(0,1);
-	O.pose.theta = obstacles.obstacles[i].pose.theta;
+	O.pose.theta = obstacles.obstacles[i].pose.theta + ry;
 	O.width = obstacles.obstacles[i].width;
 	O.height = obstacles.obstacles[i].height;
 	O.speed = obstacles.obstacles[i].speed;
