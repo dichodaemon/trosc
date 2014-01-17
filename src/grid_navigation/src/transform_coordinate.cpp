@@ -24,8 +24,8 @@ ros::Publisher pub;
 ///oc means obstacle with respect to the car.
 ///oce means obstacle with respect to centre of the curvature.
 
-Mat transform_trackspace(double x_oc, double y_oc, int theta ) {
-	Mat Rt 	 = (Mat_<double>( 2, 2 ) << cos(-ry),-sin(-ry),sin(-ry),cos(-ry));
+Mat transform_trackspace(double x_oc, double y_oc, float theta ) {
+	Mat Rt 	 = (Mat_<double>( 2, 2 ) << cos(ry),-sin(ry),sin(ry),cos(ry));
 	Mat X_oc = (Mat_<double>( 2, 1 ) << x_oc,y_oc);
 	Mat Ld 	 = (Mat_<double>( 2, 1 ) << 0, yo);
 	
@@ -40,17 +40,18 @@ Mat transform_trackspace(double x_oc, double y_oc, int theta ) {
 
 	
 	if( ch > 0 ){
-    std::cerr << "> 0; yo = " << yo << "; ry = " << ry << "; x_oc = " << x_oc << "; y_oc = " << y_oc << "\n";
+    // This is working o.k. now
 	  Mat X_cet = (Mat_<double>(2,1) << 0, 1.0 / ch); //r2
 	  Mat X_oce = X_ot - X_cet; //r3
 	
 	  alpha = atan2( X_oce.at<double>( 0, 0 ), -X_oce.at<double>( 1, 0 ) );
+    yaw = theta + ry - alpha;
 	
 		arclength = alpha / ch;  //required xco-ordinate
 		ytrack =  X_ot.at<double>(1,0);
 		
 	} else if ( ch < 0 ) {
-    std::cerr << "< 0\n";
+    // TODO: Fix this branch
 	  Mat X_cet = (Mat_<double>(2,1) << 0, -1.0 / ch); //r2
 	  Mat X_oce = X_ot - X_cet; //r3
 	
@@ -59,13 +60,14 @@ Mat transform_trackspace(double x_oc, double y_oc, int theta ) {
 		arclength = alpha / ch;  //required xco-ordinate
 		ytrack =  X_ot.at<double>(1,0);
   } else {
+    // This is working o.k. now
 		arclength = X_ot.at<double>(0,0);
 		ytrack = X_ot.at<double>(1,0);
+    yaw = theta + ry;
 	}
-  yaw = theta;// - alpha;
 
 
-	Mat points = (Mat_<double>(1,3)<<arclength,ytrack, yaw);
+  Mat points = (Mat_<double>(1,3)<<arclength,ytrack, yaw);
 	return points;
 	
 }
@@ -92,6 +94,9 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles) {
     O.pose.x = points.at<double>(0,0);
     O.pose.y = points.at<double>(0,1);
     O.pose.theta = points.at<double>(0, 2);
+    if ( O.id == 1 ) {
+      std::cerr << "Yaw:" << O.pose.theta << std::endl;
+    }
     O.width = obstacles.obstacles[i].width;
     O.height = obstacles.obstacles[i].height;
     O.speed = obstacles.obstacles[i].speed;
@@ -104,8 +109,8 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles) {
 	car_navigation_msgs::Obstacle own_car;
 	own_car.id = -2;
 	own_car.pose.x = 0;
-	own_car.pose.y = yo;
-	own_car.pose.theta = ry;
+  own_car.pose.y = yo;
+  own_car.pose.theta = ry;
 	own_car.width = 1.9;
 	own_car.height = 4.5;
 	obs.obstacles.push_back(own_car); 
