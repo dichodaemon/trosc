@@ -4,8 +4,11 @@ import numpy as np
 #from pedsim_msgs.msg import AgentState
 #from pedsim_msgs.msg import AllAgentsState
 #from pedsim_srvs.srv import SetAgentState
+#from nav_msgs.msg import Path, GridCells, OccupancyGrid
+#from geometry_msgs.msg import PoseStamped
+
+from car_navigation_msgs.msg import Control, Obstacles, Status
 from nav_msgs.msg import Path, GridCells, OccupancyGrid
-from geometry_msgs.msg import PoseStamped
 import ast
 
 import sys
@@ -20,8 +23,7 @@ import belly
 LOOKAHEAD = 1
 OBSTACLES = None
 
-# path publisher
-pub = rospy.Publisher('planned_path', Path)
+#pub = rospy.Publisher('planned_path', Path)
 cost_pub = rospy.Publisher('costmap', OccupancyGrid)
 
 class Params( object ): pass
@@ -187,19 +189,11 @@ def callback( data ):
     set_agent_state( parms.target_id, 0, 0, 0, 0 )
 
 
-def obstacle_callback( data ):
-  global OBSTACLES
-  OBSTACLES = []
-  for cell in data.cells:
-    OBSTACLES.append([int(cell.x-0.5), int(cell.y-0.5)])
-
-
-
 def listener():
-  rospy.init_node( 'irl_features' )
+  rospy.init_node( 'compute_features' )
   p = get_params()
-  rospy.Subscriber( "AllAgentsStatus", AllAgentsState, callback )
-  rospy.Subscriber( "static_obstacles", GridCells, obstacle_callback )
+  rospy.Subscriber( "obstacles", Obstacles, obstacle_callback )
+  rospy.Subscriber( "road", Lane, road_callback )
   rospy.spin()
 
 
