@@ -68,13 +68,10 @@ def facade_callback( event ):
     obs = Obstacles()
     for i in xrange( n ):
       o = Obstacle()
-      x = obstacles[i].x - s.x
-      y = obstacles[i].y - s.y
-      angle = s.yaw
       o.id = obstacles[i].id
-      o.pose.x = x * cos( -angle ) - y * sin( -angle )
-      o.pose.y = y * cos( -angle ) + x * sin( -angle )
-      o.pose.theta = atan2( obstacles[i].vY, obstacles[i].vX ) - angle
+      o.pose.x = obstacles[i].x
+      o.pose.y = obstacles[i].y
+      o.pose.theta = obstacles[i].theta
       o.speed = ( obstacles[i].vX ** 2 + obstacles[i].vY ** 2 ) ** 0.5
       o.width = obstacles[i].width
       o.height = obstacles[i].height
