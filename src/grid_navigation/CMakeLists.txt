@@ -4,17 +4,17 @@ project(grid_navigation)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
+set( GRID_DEPENDENCIES
   roscpp
   std_msgs
   visualization_msgs
   e_motion_perception_msgs
   car_navigation_msgs
   geometry_msgs
-  message_generation
   nav_msgs
-
+)
+find_package(catkin REQUIRED COMPONENTS
+ ${GRID_DEPENDENCIES}
 )
 
 find_package(OpenCV REQUIRED)
@@ -54,7 +54,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- add_message_files(FILES Obstacle.msg Obstacles.msg)
+#add_message_files(FILES Obstacle.msg Obstacles.msg)
  
 
 
@@ -73,7 +73,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES std_msgs geometry_msgs)
+#generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
 
 ###################################
@@ -86,6 +86,7 @@ generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+ CATKIN_DEPENDS ${GRID_DEPENDENCIES}
 #  INCLUDE_DIRS include
 #  LIBRARIES grid_navigation
 # CATKIN_DEPENDS roscpp rospy geometry_msgs std_msgs message_runtime

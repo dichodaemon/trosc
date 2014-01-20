@@ -58,10 +58,10 @@ st = s.str();
  marker.pose.position.x = x;
  marker.pose.position.y = y;
  marker.pose.position.z = 0;
- marker.pose.orientation.x = 0.0;
- marker.pose.orientation.y = 0.0;
- marker.pose.orientation.z = theta;
- marker.pose.orientation.w = 1.0;
+ marker.pose.orientation.x = cos( 0.5 * theta );
+ marker.pose.orientation.y = sin( 0.5 * theta );
+ marker.pose.orientation.z = 0.0;
+ marker.pose.orientation.w = 0.0;
  
  {
   marker.scale.x =height;
@@ -100,10 +100,11 @@ st = s.str();
  marker.pose.position.x = x;
  marker.pose.position.y = y;
  marker.pose.position.z = 0;
- marker.pose.orientation.x = 0.0;
- marker.pose.orientation.y = 0.0;
- marker.pose.orientation.z = theta;
- marker.pose.orientation.w = 1.0;		
+ marker.pose.orientation.x = cos( 0.5 * theta );
+ marker.pose.orientation.y = sin( 0.5 * theta );
+ marker.pose.orientation.z = 0.0;
+ marker.pose.orientation.w = 0.0;
+	
  
  {marker.scale.x =height;
   marker.scale.y =width;
@@ -139,10 +140,14 @@ st = s.str();
  marker.pose.position.x = x;
  marker.pose.position.y = y;
  marker.pose.position.z = 0;
- marker.pose.orientation.x = 0.0;
- marker.pose.orientation.y = 0.0;
- marker.pose.orientation.z = theta;
- marker.pose.orientation.w = 1.0;
+ //marker.pose.orientation.x = 0.0;
+ //marker.pose.orientation.y = 0.0;
+ //marker.pose.orientation.z = theta;
+ //marker.pose.orientation.w = 1.0;
+ marker.pose.orientation.x = cos( 0.5 * theta );
+ marker.pose.orientation.y = sin( 0.5 * theta );
+ marker.pose.orientation.z = 0.0;
+ marker.pose.orientation.w = 0.0;
 
  {marker.scale.x =height;
   marker.scale.y =width;
@@ -164,6 +169,7 @@ void Callback_road(const e_motion_perception_msgs::Lane::ConstPtr& msg)
   markers.push_back(visualMarkerLane(50, msg->width/2, 0, 0.6, 0.6, -2));
   markers.push_back(visualMarkerLane(50, -msg->width/2, 0, 0.6, 0.6, -3));
   markers.push_back(visualMarkerLane(0, -msg->width/2, 0, 0.6, 0.6, -4));
+  //std::cerr << "Theta = "  << msg->relative_yaw << std::endl;
   
   visualization_msgs::MarkerArray markers_msg;
   markers_msg.markers = markers;

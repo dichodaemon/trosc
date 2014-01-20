@@ -25,7 +25,7 @@ ros::Publisher pub;
 ///oce means obstacle with respect to centre of the curvature.
 
 
-Mat transform_trackspace(double x_oc, double y_oc, float theta ) {
+Mat transform_trackspace(double x_oc, double y_oc, float theta, int id ) {
 	
 double arclength;
 double ytrack;
@@ -91,7 +91,7 @@ car_navigation_msgs::Obstacles obs;
 int i;
 	
    for(i= 0;i< obstacles.obstacles.size(); i++) {
-    Mat points = transform_trackspace(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y,obstacles.obstacles[i].pose.theta);
+    Mat points = transform_trackspace(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y,obstacles.obstacles[i].pose.theta, obstacles.obstacles[i].id);
     car_navigation_msgs::Obstacle O;
     O.id = obstacles.obstacles[i].id;
     O.pose.x = points.at<double>(0,0);
