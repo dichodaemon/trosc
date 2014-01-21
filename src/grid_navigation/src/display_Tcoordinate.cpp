@@ -102,7 +102,7 @@ void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
 
  for(vector<Point3f>::iterator it = t_points.begin(); it!= t_points.end(); ++it) {
   markers.push_back(visualMarker((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width,obstacles.obstacles[count].height, count, "track_coordinates",Color));			
-   count++;
+  count++;
  }
 
  visualization_msgs::MarkerArray markers_msg;

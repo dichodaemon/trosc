@@ -58,12 +58,10 @@ Mat transform_trackspace(double x_oc, double y_oc, float theta, int id ) {
   arclength = X_ot.at<double>(0,0);
   ytrack = X_ot.at<double>(1,0);
   yaw = theta + ry;
-  }
-  
+  } 
   ///Transformed x,y,theta
-  Mat points = (Mat_<double>(1,3)<<arclength,ytrack, yaw);
-  return points;
-	
+ Mat points = (Mat_<double>(1,3)<<arclength,ytrack, yaw);
+ return points;
 }
 
 void Callback_road(const e_motion_perception_msgs::Lane::ConstPtr& msg){
