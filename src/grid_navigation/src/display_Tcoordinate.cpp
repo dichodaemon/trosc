@@ -34,24 +34,23 @@ ros::Publisher obstaclemap_pub;
 ros::Publisher vis_pub;
 ros::Publisher vis_pub_cl;
 
-
-
-
-visualization_msgs::Marker visualMarkerObstacle(double x, 
+visualization_msgs::Marker visualMarker(double x, 
                                                 double y, 
                                                 double theta, 
                                                 double width, 
-                                                double height, int id){
+                                                double height, 
+                                                int id, 
+                                                string ns, Mat Color){
 
-std::ostringstream s;
-s<<id;
-string st;
-st = s.str();
-
+ std::ostringstream s;
+ s<<id;
+ string st;
+ st = s.str();
+ 
  visualization_msgs::Marker marker;
  marker.header.frame_id = "/world";
  marker.header.stamp = ros::Time();
- marker.ns = "track_coordinates" + st;
+ marker.ns = ns + st;
  marker.id = id;
  marker.type = visualization_msgs::Marker::CUBE;
  marker.action = visualization_msgs::Marker::ADD;
@@ -62,164 +61,62 @@ st = s.str();
  marker.pose.orientation.y = sin( 0.5 * theta );
  marker.pose.orientation.z = 0.0;
  marker.pose.orientation.w = 0.0;
- 
- {
-  marker.scale.x =height;
-  marker.scale.y =width;
-  marker.scale.z =.1;
-  marker.color.a = 1.0;
-  marker.color.r = 1.0;
-  marker.color.b = 0.0;
-  marker.color.g = 0.0;
- }
-return marker;
-
+ marker.scale.x =height;
+ marker.scale.y =width;
+ marker.scale.z =.1;
+ marker.color.a = 1.0;
+ marker.color.r = Color.at<double>(0,0);
+ marker.color.b = Color.at<double>(1,0);
+ marker.color.g = Color.at<double>(2,0);
+ return marker;
 }
 
-
-
-
-visualization_msgs::Marker visualMarkerLane(double x, 
-                                            double y, 
-                                            double theta, 
-                                            double width, 
-                                            double height, int id){
+void Callback_road(const e_motion_perception_msgs::Lane::ConstPtr& msg){
+ vector<visualization_msgs::Marker> markers;
+ visualization_msgs::MarkerArray markers_msg;
+ Mat ColorCar  = (Mat_<double>(3,1)<<0.0,0.0,1.0);
+ Mat ColorLane = (Mat_<double>(3,1)<<0.0,1.0,0.0);
  
-std::ostringstream s;
-s<<id;
-string st;
-st = s.str();
+ markers.push_back(visualMarker(0, msg->y0, msg->relative_yaw, 1.9, 4.5, -5,"car_coordinates", ColorCar));
+ markers.push_back(visualMarker(0, msg->width/2, 0, 0.6, 0.6, -1, "lane_coordinates", ColorLane));
+ markers.push_back(visualMarker(50,msg->width/2, 0, 0.6, 0.6, -2, "lane_coordinates", ColorLane));
+ markers.push_back(visualMarker(50,-msg->width/2, 0, 0.6, 0.6,-3, "lane_coordinates", ColorLane));
+ markers.push_back(visualMarker(0, -msg->width/2, 0, 0.6, 0.6,-4, "lane_coordinates", ColorLane));
+ markers_msg.markers = markers;
+ vis_pub_cl.publish(markers_msg);
+}
 
- visualization_msgs::Marker marker;
- marker.header.frame_id = "/world";
- marker.header.stamp = ros::Time();
- marker.ns = "lane_coordinates" + st;
- marker.id = id;
- marker.type = visualization_msgs::Marker::CUBE;
- marker.action = visualization_msgs::Marker::ADD;
- marker.pose.position.x = x;
- marker.pose.position.y = y;
- marker.pose.position.z = 0;
- marker.pose.orientation.x = cos( 0.5 * theta );
- marker.pose.orientation.y = sin( 0.5 * theta );
- marker.pose.orientation.z = 0.0;
- marker.pose.orientation.w = 0.0;
+void Callback_display(const car_navigation_msgs::Obstacles& obstacles){	
 	
- 
- {marker.scale.x =height;
-  marker.scale.y =width;
-  marker.scale.z =.1;
-  marker.color.a = 1.0;
-  marker.color.r = 0.0;
-  marker.color.b = 1.0; 
-  marker.color.g = 0.0;
-  }
- return marker;		
-}
-
-
-
-visualization_msgs::Marker visualMarkerCar(double x, 
-                                           double y, 
-                                           double theta, 
-                                           double width, 
-                                           double height, int id){
- 
-std::ostringstream s;
-s<<id;
-string st;
-st = s.str();
-
- visualization_msgs::Marker marker;
- marker.header.frame_id = "/world";
- marker.header.stamp = ros::Time();
- marker.ns = "car_coordinates" + st;
- marker.id = id;
- marker.type = visualization_msgs::Marker::CUBE;
- marker.action = visualization_msgs::Marker::ADD;
- marker.pose.position.x = x;
- marker.pose.position.y = y;
- marker.pose.position.z = 0;
- //marker.pose.orientation.x = 0.0;
- //marker.pose.orientation.y = 0.0;
- //marker.pose.orientation.z = theta;
- //marker.pose.orientation.w = 1.0;
- marker.pose.orientation.x = cos( 0.5 * theta );
- marker.pose.orientation.y = sin( 0.5 * theta );
- marker.pose.orientation.z = 0.0;
- marker.pose.orientation.w = 0.0;
-
- {marker.scale.x =height;
-  marker.scale.y =width;
-  marker.scale.z =.4;
-  marker.color.a = 1.0;
-  marker.color.r = 0.0;
-  marker.color.b = 0.0;
-  marker.color.g = 1.0;
-  }
-return marker;	
-}
-
-void Callback_road(const e_motion_perception_msgs::Lane::ConstPtr& msg)
-{
-
-  vector<visualization_msgs::Marker> markers;
-  markers.push_back(visualMarkerCar (0, msg->y0, msg->relative_yaw, 1.9, 4.5, -5));
-  markers.push_back(visualMarkerLane(0, msg->width/2, 0, 0.6, 0.6, -1));
-  markers.push_back(visualMarkerLane(50, msg->width/2, 0, 0.6, 0.6, -2));
-  markers.push_back(visualMarkerLane(50, -msg->width/2, 0, 0.6, 0.6, -3));
-  markers.push_back(visualMarkerLane(0, -msg->width/2, 0, 0.6, 0.6, -4));
-  //std::cerr << "Theta = "  << msg->relative_yaw << std::endl;
-  
-  visualization_msgs::MarkerArray markers_msg;
-  markers_msg.markers = markers;
-  vis_pub_cl.publish(markers_msg);
-  	
-}
-
-	
-
-
-
-
-
-void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
-	
-vector<Point3f> t_points;
-vector<visualization_msgs::Marker> markers;
-vector<visualization_msgs::Marker> markersP;
+ int count = 0;
+ int obstacle_counter = 0;
+ vector<geometry_msgs::Point> obstaclerepo;	
+ vector<Point3f> t_points;
+ vector<visualization_msgs::Marker> markers;
+ vector<visualization_msgs::Marker> markersP;
+ Mat Color = (Mat_<double>(3,1)<<1.0,0.0,0.0);
 
  for(int i = 0;i<obstacles.obstacles.size(); i++){
-	t_points.push_back(Point3f(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y, obstacles.obstacles[i].pose.theta));	
- }
-
-int count = 0;
-int obstacle_counter = 0;
-vector<geometry_msgs::Point> obstaclerepo;
+  t_points.push_back(Point3f(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y, obstacles.obstacles[i].pose.theta));	
+ } 
 
  for(vector<Point3f>::iterator it = t_points.begin(); it!= t_points.end(); ++it) {
-	markers.push_back(visualMarkerObstacle((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width,obstacles.obstacles[count].height, count));			
-	count++;
+  markers.push_back(visualMarker((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width,obstacles.obstacles[count].height, count, "track_coordinates",Color));			
+   count++;
  }
 
-visualization_msgs::MarkerArray markers_msg;
-markers_msg.markers = markers;
-vis_pub.publish(markers_msg);
+ visualization_msgs::MarkerArray markers_msg;
+ markers_msg.markers = markers;
+ vis_pub.publish(markers_msg);
 }
 
-
-
 int main(int argc, char*argv[]){
-
-  ros::init(argc, argv, "displayTcoodrinate");
-  ros::NodeHandle n;
-  ros::Subscriber dp = n.subscribe("/trackcordinates", 1, Callback_display);
-  ros::Subscriber sr = n.subscribe("/road", 1, Callback_road);
-  
-  vis_pub = n.advertise<visualization_msgs::MarkerArray>( "/visualization_marker", 1000 );
-  vis_pub_cl = n.advertise<visualization_msgs::MarkerArray>( "/visualization_markercarlane", 1000 );
-  
-  ros::spin();
-
-return 0;	
+ ros::init(argc, argv, "displayTcoodrinate");
+ ros::NodeHandle n;
+ ros::Subscriber dp = n.subscribe("/trackcordinates", 1, Callback_display);
+ ros::Subscriber sr = n.subscribe("/road", 1, Callback_road);
+ vis_pub = n.advertise<visualization_msgs::MarkerArray>( "/visualization_marker", 1000 );
+ vis_pub_cl = n.advertise<visualization_msgs::MarkerArray>( "/visualization_markercarlane", 1000 );
+ ros::spin();
+ return 0;	
 }
