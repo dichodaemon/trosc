@@ -76,6 +76,8 @@ void Callback_Obstacle(const car_navigation_msgs::Obstacles& obstacles) {
 	
  vector<Point2f> t_points;
  car_navigation_msgs::Obstacles obs;
+ obs.header.stamp = ros::Time::now();
+ obs.header.frame_id = "world";
 
  for(int i= 0;i< obstacles.obstacles.size(); i++){
   Mat points = transform_trackspace(obstacles.obstacles[i].pose.x, obstacles.obstacles[i].pose.y,obstacles.obstacles[i].pose.theta, obstacles.obstacles[i].id);
@@ -96,7 +98,7 @@ int main(int argc, char*argv[]){
  ros::init(argc, argv, "transform");
  ros::NodeHandle nh;
  ros::Subscriber subroad = nh.subscribe("/road", 1, Callback_road);
- ros::Subscriber subobst = nh.subscribe("/obstacles", 1000, Callback_Obstacle);
+ ros::Subscriber subobst = nh.subscribe("/obstacles", 1, Callback_Obstacle);
  pub = nh.advertise<car_navigation_msgs::Obstacles>("/trackcordinates",1000);
  ros::spin();
  return 0;	
