@@ -4,7 +4,7 @@
   
   <param name="/compute_features/feature_type" value="helbing"/>
   <param name="/compute_features/feature_params" value="{ 'radius': 2}"/>
-  <param name="/compute_features/weights" value="[0.1, 0.2, 0.3, 0.4]"/>
+  <param name="/compute_features/weights" value="[0.23, 0.33, 0.43, 0.01]"/>
 
   <!-- grid dimension -->
   <param name="/compute_features/cell_size" value="1.0" type="double"/>

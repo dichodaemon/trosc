@@ -41,8 +41,8 @@ def get_params():
   return result
 
 def publish_costmap( costs, cell_size, x1, y1 ):
-  cc = costs[0] * 1.0
-  cc *= 100.0 / np.max( cc )
+  cc = costs[0] * 100.0
+  #cc *= 100.0 / np.max( cc )
   cc = cc.astype( np.int8 )
   w, h = cc.shape
   c = np.reshape( cc, w * h )
