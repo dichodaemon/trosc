@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-Training = True # or False
+Training = False # True or False
 
 import sys
 import os
@@ -56,10 +56,10 @@ def facade_callback( event ):
       control_pub.publish( control )   
     else:
       c = trosc.Command()
-      c.steering = control.steering
-      c.acceleration = control.acceleration
-      c.brake = control.brake
-      c.gear = control.gear
+      c.steering = 0 #control.steering
+      c.acceleration = 0.2 #control.acceleration
+      c.brake = 0 #control.brake
+      c.gear = 1 #control.gear
       facade.command = c
 
     obs = Obstacles()
