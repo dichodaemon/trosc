@@ -10,14 +10,10 @@ import sys
 class compute_features( belly.opencl.Program ):
   def __init__( self, convert, radius ):
     belly.opencl.Program.__init__( self )
-    self.kimlike = self.loadProgram( belly.BASE_DIR + "/opencl/helbing.cl" )
+    self.kernel = self.loadProgram( belly.BASE_DIR + "/opencl/helbing.cl" )
 
     self.convert = convert
     self.radius  = radius
-
-    mf = cl.mem_flags
-    self.direction_buffer = cl.Buffer( self.context, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf = DIRECTIONS )
-    self.angle_buffer = cl.Buffer( self.context, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf = ANGLES )
 
   def __call__( self, speed, frame ):
     mf = cl.mem_flags
@@ -28,13 +24,13 @@ class compute_features( belly.opencl.Program ):
     frame_buffer = cl.Buffer( self.context, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf = f )
     feature_buffer = cl.Buffer( self.context, mf.WRITE_ONLY, features.nbytes )
 
-    self.kimlike.computeFeatures( 
+    self.kernel.computeFeatures( 
       self.queue, features.shape[:-1], None, 
-      np.float32( speed ), np.float32( self.convert.delta ), np.float32( self.radius ),
-      self.direction_buffer,
+      np.float32( speed ), 
+      np.float32( self.convert.delta ), np.float32( self.radius ),
       np.int32( self.convert.grid_width ), np.int32( self.convert.grid_height ), np.int32( FEATURE_LENGTH ),
       np.int32( frame.shape[0] ), frame_buffer, 
-      np.float32( LAMBDA ), self.angle_buffer,
+      np.float32( LAMBDA ), 
       feature_buffer 
     )
 
