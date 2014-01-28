@@ -11,16 +11,6 @@ class Command( ctypes.Structure ):
 class Status( ctypes.Structure ):
   _fields_ = [ ( "rpm", ctypes.c_float ),
                ( "gear", ctypes.c_int ),
-               ( "gear_ratio", ctypes.c_float ),
-               ( "lower_gear_ratio", ctypes.c_float ),
-               ( "max_rpm", ctypes.c_float ),
-               ( "wheel_radius", ctypes.c_float ),
-               ( "track_yaw", ctypes.c_float ),
-               ( "track_distance", ctypes.c_float ),
-               ( "track_curvature", ctypes.c_float ),
-               ( "track_width", ctypes.c_float ),
-               ( "next_curvature", ctypes.c_float ),
-               ( "next_distance", ctypes.c_float ),
                ( "speed", ctypes.c_float ),
                ( "yaw", ctypes.c_float ),
                ( "x", ctypes.c_float ),
@@ -34,7 +24,7 @@ class Obstacle( ctypes.Structure ):
                ( "vX", ctypes.c_float ),
                ( "vY", ctypes.c_float ),
                ( "width", ctypes.c_float ),
-               ( "height", ctypes.c_float ) ]
+               ( "length", ctypes.c_float ) ]
 
 class Buffer( ctypes.Structure ):
   _fields_ = [ ( "command", Command ), 
@@ -68,6 +58,13 @@ class Facade( object ):
     self.buffer.contents.command = command
     self.s.release()
 
+  def __get_buffer( self ):
+    self.s.acquire()
+    b = Buffer.from_buffer_copy( self.buffer.contents )
+    self.s.release()
+    return b.command, b.status, b.n_obstacles, b.obstacles
+
   status = property( __get_status )
   obstacles = property( __get_obstacles )
   command = property( None, __set_command )
+  get_buffer = property(__get_buffer)

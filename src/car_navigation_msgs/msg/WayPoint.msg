@@ -1,5 +1,2 @@
-Header header
 geometry_msgs/Pose2D pose
 float32 speed
-float32 rpm
-int32 gear
