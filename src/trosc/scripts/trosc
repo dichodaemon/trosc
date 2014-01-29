@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-Training = False # True or False
+Training = True # True or False
 
 import sys
 import os
@@ -12,7 +12,7 @@ import rospy
 import numpy as np
 
 from e_motion_perception_msgs.msg import Lane
-from car_navigation_msgs.msg import Control, Status, Obstacle, Obstacles
+from car_navigation_msgs.msg import Control, Status, Obstacle, Obstacles, BufferData
 
 import sysv_ipc
 import trosc
@@ -25,7 +25,7 @@ status_pub = rospy.Publisher( "status", Status )
 obstacle_pub = rospy.Publisher( "obstacles", Obstacles )
 if Training == True:
   control_pub = rospy.Publisher ( "control_train", Control )
-
+buf_pub = rospy.Publisher ( "buffer_data", BufferData)
 def facade_callback( event ):
   global facade
   global control
@@ -74,6 +74,13 @@ def facade_callback( event ):
       o.height = obstacles[i].length
       obs.obstacles.append( o )
     obstacle_pub.publish( obs )
+
+    buf = BufferData()
+    buf.status = status
+    buf.control = control
+    buf.obstacles = obs
+    buf_pub.publish( buf )
+
   except sysv_ipc.ExistentialError:
     facade = None
 

@@ -7,6 +7,7 @@
 #include <car_navigation_msgs/Obstacle.h>
 #include <car_navigation_msgs/Obstacles.h>
 #include <car_navigation_msgs/Status.h>
+#include <car_navigation_msgs/BufferData.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -119,7 +120,7 @@ void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
 #define TrackLengthShow 100
 car_navigation_msgs::Status status;
 
-void CallBack_status(const car_navigation_msgs::Status& msg)
+void Callback_status(const car_navigation_msgs::Status& msg)
 {
 	status = msg;
 
@@ -181,6 +182,11 @@ void Callback_obstacles(const car_navigation_msgs::Obstacles& obstacles){
 }
 
 
+void Callback_buffer(const car_navigation_msgs::BufferData& buf)
+{
+	Callback_status(buf.status);
+	Callback_obstacles(buf.obstacles);
+}
 
 int main(int argc, char*argv[]){
 	ros::init(argc, argv, "displayTcoodrinate");
@@ -188,8 +194,9 @@ int main(int argc, char*argv[]){
 	// ros::Subscriber dp = n.subscribe("/trackcordinates", 1, Callback_display);
 	// ros::Subscriber sr = n.subscribe("/road", 1, Callback_road);
 
-	ros::Subscriber obstaclesSub = n.subscribe("/obstacles", 10, Callback_obstacles);
-	ros::Subscriber statusSub = n.subscribe("/status", 10, CallBack_status);
+	//ros::Subscriber obstaclesSub = n.subscribe("/obstacles", 1, Callback_obstacles);
+	//ros::Subscriber statusSub = n.subscribe("/status", 1, Callback_status);
+	ros::Subscriber bufferSub = n.subscribe("/buffer_data", 10, Callback_buffer);
 
 	vis_pub = n.advertise<visualization_msgs::MarkerArray>( "/visualization_marker", 1000 );
 	vis_pub_cl = n.advertise<visualization_msgs::MarkerArray>( "/visualization_markercarlane", 1000 );
