@@ -35,12 +35,12 @@ ros::Publisher vis_pub;
 ros::Publisher vis_pub_cl;
 
 visualization_msgs::Marker visualMarker(double x, 
-                                                double y, 
-                                                double theta, 
-                                                double width, 
-                                                double height, 
-                                                int id, 
-                                                string ns, Mat Color){
+                                        double y, 
+                                        double theta, 
+                                        double width, 
+                                        double height, 
+                                        int id, 
+                                        string ns, Mat Color){
 
  std::ostringstream s;
  s<<id;
