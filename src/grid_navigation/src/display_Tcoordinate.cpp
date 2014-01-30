@@ -24,6 +24,8 @@
 #include <ros/builtin_message_traits.h>
 #include <ros/message_operations.h>
 
+#include <message_filters/subscriber.h>
+#include <message_filters/time_synchronizer.h>
 
 
 #define PI 3.141592
@@ -34,6 +36,7 @@
 
 using namespace cv;
 using namespace std;
+using namespace message_filters;
 ros::Publisher obstaclemap_pub;
 ros::Publisher vis_pub;
 ros::Publisher vis_pub_cl;
@@ -145,11 +148,14 @@ Point3f CoordinateTranslation(const car_navigation_msgs::Obstacle& obstacle)
 	p.z = obstacle.pose.theta;
 
 	float yaw = status.pose.theta;
-	float x = 0;
+	float x = status.pose.x;
 	float y = status.pose.y;
-	pResult.x = p.x * cos(yaw) - p.y * sin(yaw);
-	pResult.y = p.y * cos(yaw) + p.x * sin(yaw) + y;
-	pResult.z = p.z + yaw;
+	//pResult.x = p.x * cos(yaw) - p.y * sin(yaw);
+	//pResult.y = p.y * cos(yaw) + p.x * sin(yaw) + y;
+	//pResult.z = p.z + yaw;
+	pResult.x = p.x - x;
+	pResult.y = p.y;
+	pResult.z = p.z;
 
 	//printf("%f\t%f\t%f\n",yaw, p.y, pResult.y);
 
@@ -181,12 +187,19 @@ void Callback_obstacles(const car_navigation_msgs::Obstacles& obstacles){
 	vis_pub.publish(markers_msg);
 }
 
+void Callback_status_obstacles(const car_navigation_msgs::Status& msg, const car_navigation_msgs::Obstacles& obstacles)
+{
+	Callback_status(msg);
+	Callback_obstacles(obstacles);
+}
 
 void Callback_buffer(const car_navigation_msgs::BufferData& buf)
 {
 	Callback_status(buf.status);
 	Callback_obstacles(buf.obstacles);
 }
+
+
 
 int main(int argc, char*argv[]){
 	ros::init(argc, argv, "displayTcoodrinate");
@@ -197,7 +210,14 @@ int main(int argc, char*argv[]){
 	//ros::Subscriber obstaclesSub = n.subscribe("/obstacles", 1, Callback_obstacles);
 	//ros::Subscriber statusSub = n.subscribe("/status", 1, Callback_status);
 	ros::Subscriber bufferSub = n.subscribe("/buffer_data", 10, Callback_buffer);
-
+	
+	// sync two data [have problem in linking]
+	//message_filters::Subscriber<car_navigation_msgs::Obstacles> obstaclesSub(n, "/obstacles", 1);
+	//message_filters::Subscriber<car_navigation_msgs::Status> statusSub(n, "/status", 1);
+	//TimeSynchronizer <car_navigation_msgs::Obstacles, car_navigation_msgs::Status>
+	//					sync(obstaclesSub, statusSub, 10);
+	//sync.registerCallback(boost::bind(&Callback_status_obstacles, _1, _2));
+	
 	vis_pub = n.advertise<visualization_msgs::MarkerArray>( "/visualization_marker", 1000 );
 	vis_pub_cl = n.advertise<visualization_msgs::MarkerArray>( "/visualization_markercarlane", 1000 );
 	ros::spin();
