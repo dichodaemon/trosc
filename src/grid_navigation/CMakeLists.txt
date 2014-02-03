@@ -12,6 +12,7 @@ set( GRID_DEPENDENCIES
   car_navigation_msgs
   geometry_msgs
   nav_msgs
+  message_filters
 )
 find_package(catkin REQUIRED COMPONENTS
  ${GRID_DEPENDENCIES}
@@ -119,10 +120,8 @@ add_executable(display_Tcoordinate src/display_Tcoordinate.cpp)
 # add_dependencies(grid_navigation_node grid_navigation_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(transform_coordinate ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
-   )
-target_link_libraries(display_Tcoordinate ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
-   )   
+target_link_libraries(transform_coordinate ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} )
+target_link_libraries(display_Tcoordinate ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
