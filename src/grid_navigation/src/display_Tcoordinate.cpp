@@ -7,6 +7,7 @@
 #include <car_navigation_msgs/Obstacle.h>
 #include <car_navigation_msgs/Obstacles.h>
 #include <car_navigation_msgs/Status.h>
+#include <car_navigation_msgs/BufferData.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -33,7 +34,6 @@
 
 #define RESOLUTION 1
 #define WINDOW_SIZE 100
-
 using namespace cv;
 using namespace std;
 using namespace message_filters;
@@ -41,6 +41,9 @@ ros::Publisher obstaclemap_pub;
 ros::Publisher vis_pub;
 ros::Publisher vis_pub_cl;
 
+const float zScale_Car = 2;
+
+// Add Marker is 0, remove marker is 2
 visualization_msgs::Marker visualMarker(double x, 
                                                 double y, 
                                                 double theta, 
@@ -48,7 +51,8 @@ visualization_msgs::Marker visualMarker(double x,
                                                 double height, 
                                                 int id, 
                                                 string ns, Mat Color,
-												int AddOrRemove = 0){
+												int AddOrRemove = 0,
+												float zScale = 0.1){
 
 	std::ostringstream s;
 	s<<id;
@@ -64,14 +68,14 @@ visualization_msgs::Marker visualMarker(double x,
 	marker.action = AddOrRemove;//visualization_msgs::Marker::ADD;
 	marker.pose.position.x = x;
 	marker.pose.position.y = y;
-	marker.pose.position.z = 0;
+	marker.pose.position.z = zScale/2;
 	marker.pose.orientation.x = cos( 0.5 * theta );
 	marker.pose.orientation.y = sin( 0.5 * theta );
 	marker.pose.orientation.z = 0.0;
 	marker.pose.orientation.w = 0.0;
-	marker.scale.x =height;
-	marker.scale.y =width;
-	marker.scale.z =.1;
+	marker.scale.x = height;
+	marker.scale.y = width;
+	marker.scale.z = zScale;
 	marker.color.a = 1.0;
 	marker.color.r = Color.at<double>(0,0);
 	marker.color.b = Color.at<double>(1,0);
@@ -143,7 +147,8 @@ void Callback_status(const car_navigation_msgs::Status& msg)
 	Mat ColorCar  = (Mat_<double>(3,1)<<0.0,0.0,1.0);
 	Mat ColorLane = (Mat_<double>(3,1)<<1.0,1.0,1.0);
 
-	markers.push_back(visualMarker(0, status.pose.y, status.pose.theta, 1.9, 4.5, -5,"car_coordinates", ColorCar));
+	markers.push_back(visualMarker(0, status.pose.y, status.pose.theta, 1.9, 4.5, -5,"car_coordinates", ColorCar, 0, zScale_Car));
+
 	markers.push_back(visualMarker(0, TrackWidth/2.0, 0, 1, TrackLengthShow, -1, "lane_coordinates", ColorLane));
 	markers.push_back(visualMarker(0, -TrackWidth/2.0, 0, 1, TrackLengthShow, -2, "lane_coordinates", ColorLane));
 
@@ -211,8 +216,7 @@ void Callback_obstacles(const car_navigation_msgs::Obstacles& obstacles){
 	} 
 
 	for(vector<Point3f>::iterator it = t_points.begin(); it!= t_points.end(); ++it) {
-		markers.push_back(visualMarker((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width,
-						obstacles.obstacles[count].height, count, "track_coordinates",Color));			
+		markers.push_back(visualMarker((it)->x,(it)->y,(it)->z,obstacles.obstacles[count].width, obstacles.obstacles[count].height, count, "track_coordinates",Color, 0, zScale_Car));			
 	count++;
 	}
 
@@ -227,11 +231,11 @@ void Callback_status_obstacles(const car_navigation_msgs::Status& msg, const car
 	Callback_obstacles(obstacles);
 }
 
-//void Callback_buffer(const car_navigation_msgs::BufferData& buf)
-//{
-//	Callback_status(buf.status);
-//	Callback_obstacles(buf.obstacles);
-//}
+void Callback_buffer(const car_navigation_msgs::BufferData& buf)
+{
+	Callback_status(buf.status);
+	Callback_obstacles(buf.obstacles);
+}
 
 
 
@@ -243,13 +247,13 @@ int main(int argc, char*argv[]){
 
 	//ros::Subscriber statusSub = n.subscribe("/status", 1, Callback_status);
 	//ros::Subscriber obstaclesSub = n.subscribe("/obstacles", 1, Callback_obstacles);
-	//ros::Subscriber bufferSub = n.subscribe("/buffer_data", 10, Callback_buffer);
+	ros::Subscriber bufferSub = n.subscribe("/buffer_data", 10, Callback_buffer);
 	
 	// sync two data
-	message_filters::Subscriber<car_navigation_msgs::Status> statusSub(n, "/status", 1);
-	message_filters::Subscriber<car_navigation_msgs::Obstacles> obstaclesSub(n, "/obstacles", 1);
-	TimeSynchronizer <car_navigation_msgs::Status, car_navigation_msgs::Obstacles> sync(statusSub, obstaclesSub, 10);
-	sync.registerCallback(Callback_status_obstacles);
+	//message_filters::Subscriber<car_navigation_msgs::Status> statusSub(n, "/status", 1);
+	//message_filters::Subscriber<car_navigation_msgs::Obstacles> obstaclesSub(n, "/obstacles", 1);
+	//TimeSynchronizer <car_navigation_msgs::Status, car_navigation_msgs::Obstacles> sync(statusSub, obstaclesSub, 10);
+	//sync.registerCallback(Callback_status_obstacles);
 	
 	vis_pub = n.advertise<visualization_msgs::MarkerArray>( "/visualization_marker", 1000 );
 	vis_pub_cl = n.advertise<visualization_msgs::MarkerArray>( "/visualization_markercarlane", 1000 );

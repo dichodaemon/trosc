@@ -75,11 +75,11 @@ def facade_callback( event ):
       obs.obstacles.append( o )
     obstacle_pub.publish( obs )
 
-    #buf = BufferData()
-    #buf.status = status
-    #buf.control = control
-    #buf.obstacles = obs
-    #buf_pub.publish( buf )
+    buf = BufferData()
+    buf.status = status
+    buf.control = control
+    buf.obstacles = obs
+    buf_pub.publish( buf )
 
   except sysv_ipc.ExistentialError:
     facade = None
