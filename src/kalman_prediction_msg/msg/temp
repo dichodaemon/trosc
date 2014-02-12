@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+
+
+import rospy
+import numpy as np
+from kalman import Kalman
+
+
+from car_navigation_msgs.msg import Obstacle, Obstacles
+from kalman_prediction_msg.msg import ObstaclePrediction, ObstaclesPrediction
+
+factor = 0.0002
+delta = 0.1
+callcount = 0
+pred_pub = rospy.Publisher( "prediction", ObstaclesPrediction)
+
+
+xpre = np.zeros((1,11))
+ypre = np.zeros((1,11))
+xdot = np.zeros((1,11))
+ydot = np.zeros((1,11))
+
+a = np.array( [
+    [ 1., 0., 1., 0. ],
+    [ 0., 1., 0., 1. ],
+    [ 0., 0., 1., 0. ],
+    [ 0., 0., 0., 1. ]
+  ] )
+
+c = np.array( [
+    [ 1., 0., 0., 0. ],
+    [ 0., 1., 0., 0. ]
+  ] )
+q = np.eye( 2 ) * 0.25
+p = np.eye( 4 ) * 1.
+
+
+
+updateList = []
+
+class update_covariance(object):
+  def __init__(self, covariance_matrix):
+    self.covariance_matrix = covariance_matrix
+  
+    
+
+
+
+class default_noise( object ):
+  def __init__( self, factor ):
+    self.factor = factor
+  def __call__( self, delta ):
+    d3 = delta**3 * self.factor / 3.
+    d2 = delta**2 * self.factor / 2.
+    d  = delta * self.factor
+    return np.array( [
+      [d3, 0., d2, 0.],
+      [0., d3, 0., d2],
+      [d2, 0.,  d,  0],
+      [0,  d2,  0,  d]
+    ] )
+    
+
+
+def init_covariance():
+  for x in range(0, 11):
+    updateList.append(update_covariance(np.eye(4)))
+
+
+
+
+def obstacledata( o ):
+  global callcount
+  global pred_pub
+   
+  callcount = callcount + 1
+  
+  if callcount == 1:
+    init_covariance()
+  else:
+    obs = ObstaclesPrediction()
+    for oi in o.obstacles:
+     mean = np.array([oi.pose.x, oi.pose.y, xdot[0][oi.id], ydot[0][oi.id]])
+     r = default_noise(factor)
+     observation = np.array( [1.0, 1.0] ) 
+     obj = Kalman(mean, a, c, r, q, updateList[oi.id].covariance_matrix)
+     
+     #print "First"
+     #print updateList[oi.id].covariance_matrix 
+    
+     obj.predict(delta)
+     obj.update(observation)
+     mean = obj.get_mean()
+     updateList[oi.id].covariance_matrix = obj.get_p()
+     obj.set_mean(mean)
+     obj.set_p(updateList[oi.id].covariance_matrix )
+    
+     xpre[0][oi.id] = mean[0] #x predicted
+     ypre[0][oi.id] = mean[1] #y predicted
+     xdot[0][oi.id] = mean[2] #xdot predicted
+     ydot[0][oi.id] = mean[3] #ydot predicted
+    
+     covxy  = updateList[oi.id].covariance_matrix[0:2, 0:2]
+     (eigVal, eigVec) = np.linalg.eig(covxy)
+     
+     #print "Second"
+     #print updateList[oi.id].covariance_matrix
+     #print xdot[0][oi.id]
+     #print ydot[0][oi.id]
+     #I need to publish xpred, ypred, theta_major, eigen_valuex and eigen_valuey
+     ob = ObstaclePrediction()
+     ob.id = oi.id
+     ob.pose.x = xpre[0][oi.id]
+     ob.pose.y = ypre[0][oi.id]
+     ob.pose.theta = np.arctan2(ydot[0][oi.id], xdot[0][oi.id])
+     ob.xdot = xdot[0][oi.id]
+     ob.ydot = ydot[0][oi.id]
+     ob.eigx = eigVal[0]
+     ob.eigy = eigVal[1]
+     ob.tmajor = np.arctan2(eigVec[0][1],eigVec[0][0])
+     ob.tminor = np.arctan2(eigVec[1][1],eigVec[1][0])
+     obs.obstacles.append( ob )
+    pred_pub.publish( obs )
+     
+  
+     
+     
+     
+
+    
+    
+    
+    
+
+
+if __name__ == '__main__':
+  rospy.init_node('kalmanfilter', anonymous=True)
+  rospy.Subscriber("obstacles", Obstacles, obstacledata)
+ 
+  rospy.spin()
+
