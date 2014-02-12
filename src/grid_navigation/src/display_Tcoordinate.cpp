@@ -127,7 +127,8 @@ void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
 // 20140128_yyf
 //#include <car_navigation_msgs/BufferData.h>
 
-const float TrackWidth = 20;
+const float TrackWidth = 10;
+const float LaneWidth = 0.5;
 const float TrackLengthShow = 100;
 const float CenterLineLength = 10;		// length of one center line (white+blank)
 const float CenterLineFill = 5;		// length of one white line
@@ -149,8 +150,8 @@ void Callback_status(const car_navigation_msgs::Status& msg)
 
 	markers.push_back(visualMarker(0, status.pose.y, status.pose.theta, 1.9, 4.5, -5,"car_coordinates", ColorCar, 0, zScale_Car));
 
-	markers.push_back(visualMarker(0, TrackWidth/2.0, 0, 1, TrackLengthShow, -1, "lane_coordinates", ColorLane));
-	markers.push_back(visualMarker(0, -TrackWidth/2.0, 0, 1, TrackLengthShow, -2, "lane_coordinates", ColorLane));
+	markers.push_back(visualMarker(0, TrackWidth/2.0, 0, LaneWidth, TrackLengthShow, -1, "lane_coordinates", ColorLane));
+	markers.push_back(visualMarker(0, -TrackWidth/2.0, 0, LaneWidth, TrackLengthShow, -2, "lane_coordinates", ColorLane));
 
 	// draw center line
 	float relativePose = length - int(length/CenterLineLength)*CenterLineLength;
@@ -164,7 +165,7 @@ void Callback_status(const car_navigation_msgs::Status& msg)
 	{
 		left = std::max(-TrackLengthShow/2.0, nowPose-CenterLineFill/2.0);
 		right = std::min(TrackLengthShow/2.0, nowPose+CenterLineFill/2.0);
-		markers.push_back(visualMarker( (left+right)/2.0, 0, 0, 1, (right-left), flag--, "lane_coordinates", ColorLane));
+		markers.push_back(visualMarker( (left+right)/2.0, 0, 0, LaneWidth, (right-left), flag--, "lane_coordinates", ColorLane));
 		nowPose += CenterLineLength;
 	}
 	
@@ -172,7 +173,7 @@ void Callback_status(const car_navigation_msgs::Status& msg)
 	if (MinFlag<flag)
 	{
 		for (int i=MinFlag+1; i<=flag; i++)
-			markers.push_back(visualMarker( (left+right)/2.0, 0, 0, 1, (right-left), i, "lane_coordinates", ColorLane,2));
+			markers.push_back(visualMarker( (left+right)/2.0, 0, 0, LaneWidth, (right-left), i, "lane_coordinates", ColorLane,2));
 	}
 	MinFlag = flag;
 
