@@ -147,7 +147,6 @@ void Callback_status(const car_navigation_msgs::Status& msg)
 	visualization_msgs::MarkerArray markers_msg;
 	Mat ColorCar  = (Mat_<double>(3,1)<<0.0,0.0,1.0);
 	Mat ColorLane = (Mat_<double>(3,1)<<1.0,1.0,1.0);
-
 	markers.push_back(visualMarker(0, status.pose.y, status.pose.theta, 1.9, 4.5, -5,"car_coordinates", ColorCar, 0, zScale_Car));
 
 	markers.push_back(visualMarker(0, TrackWidth/2.0, 0, LaneWidth, TrackLengthShow, -1, "lane_coordinates", ColorLane));
