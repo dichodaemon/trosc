@@ -30,7 +30,7 @@
 #define TS 20
 
 double offset = 0;
-double offset_step = 150;
+double offset_step = 100;
 
 using namespace cv;
 using namespace std;
@@ -38,6 +38,15 @@ using namespace std;
 ros::Publisher prediction_pub;
 ros::Publisher visualpred_pub;
 
+
+
+const float TrackWidth = 20;
+const float LaneWidth = 0.5;
+const float TrackLengthShow = 200;
+const float CenterLineLength = 10;
+const float CenterLineFill = 5;
+float length = 0;
+int MinFlag;
 
 
 
@@ -52,7 +61,8 @@ visualization_msgs::Marker visualMarker(double xpred,
                                         double eigy,
                                         int type, 
                                         int id, 
-                                        string ns, Mat Color){
+                                        string ns, Mat Color,
+                                        int AddOrRemove = 0){
 
  std::ostringstream s;
  s<<id;
@@ -65,16 +75,16 @@ visualization_msgs::Marker visualMarker(double xpred,
  marker.ns = ns + st;
  marker.id = id;
  marker.type = type;
- marker.action = visualization_msgs::Marker::ADD;
- marker.pose.position.x = xpred - offset;
+ marker.action = AddOrRemove;//visualization_msgs::Marker::ADD;
+ marker.pose.position.x = xpred;
  marker.pose.position.y = ypred;
  marker.pose.position.z = 0;
  marker.pose.orientation.x = cos( 0.5 * (theta_major ) ) ;
  marker.pose.orientation.y = sin( 0.5 * (theta_major ) );
  marker.pose.orientation.z = 0.0;
  marker.pose.orientation.w = 0.0;
- marker.scale.x = fabs(eigx)+2;
- marker.scale.y = fabs(eigy)+2;
+ marker.scale.x = fabs(eigx);
+ marker.scale.y = fabs(eigy);
  marker.scale.z = 0.1;
  
  marker.color.r = Color.at<double>(0,0);
@@ -104,6 +114,7 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
 	Mat ColorObstacles = (Mat_<double>(3,1)<<1.0,0.0,0.0);
 	Mat ColorEllipse;// = (Mat_<double>(3,1)<<0.0,1.0,0.0);
   Mat ColorCar = (Mat_<double>(3,1)<<0.0,0.0,1.0);
+  Mat ColorLane = (Mat_<double>(3,1)<<1.0,1.0,1.0);
 	
 	Mat Mean, Cov, Eig;
   int x,y,t;
@@ -123,11 +134,12 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
         {
            offset = (int(x/offset_step))*offset_step;
            //printf("%lf\t%f\n", x, offset);
+           x = x - offset;
        }
         y = Mean.at<double>(0,1);
         t = Mean.at<double>(0,3)/Mean.at<double>(0,2);
         markers.push_back(visualMarker(x, y, t, -1.0, 0.0, 1, count1++, "obstacle_coordinates",ColorCar));
-        markers.push_back(visualMarker(x, y, t, Eig.at<double>(0,0)*10, Eig.at<double>(0,1)*10, 3, count1++, "obstacle_coordinates",ColorObstacles));
+        markers.push_back(visualMarker(x, y, t, Eig.at<double>(0,0)*50, Eig.at<double>(0,1)*50, 3, count1++, "obstacle_coordinates",ColorObstacles));
       }
       
       else{
@@ -135,15 +147,18 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
         Cov  = (Mat_<double>(2,2)<<predictiononestep.cov[0],predictiononestep.cov[1], predictiononestep.cov[4], predictiononestep.cov[5]);
         eigen(Cov,Eig);
         x = Mean.at<double>(0,0);
+        x = x - offset; 
         y = Mean.at<double>(0,1);
         t = Mean.at<double>(0,3)/Mean.at<double>(0,2);
         ColorEllipse = (Mat_<double>(3,1)<<0.0,(1.0/TS)*j, 0.0);
-        markers.push_back(visualMarker(x, y, t, Eig.at<double>(0,0)*10, Eig.at<double>(0,1)*10, 3, count1++, "obstacle_coordinates",ColorEllipse));
+        markers.push_back(visualMarker(x, y, t, Eig.at<double>(0,0)*50, Eig.at<double>(0,1)*50, 3, count1++, "obstacle_coordinates",ColorEllipse));
       }
     }
 	}
- 
-	
+  markers.push_back(visualMarker( 0, TrackWidth/2.0, PI/2, LaneWidth, TrackLengthShow, 1, -1, "lane_coordinates", ColorLane));
+	markers.push_back(visualMarker( 0, -TrackWidth/2.0, PI/2, LaneWidth, TrackLengthShow, 1,  -2, "lane_coordinates", ColorLane));
+
+
  visualization_msgs::MarkerArray markers_msg;
  markers_msg.markers = markers;
  visualpred_pub.publish(markers_msg);

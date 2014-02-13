@@ -127,7 +127,7 @@ void Callback_display(const car_navigation_msgs::Obstacles& obstacles){
 // 20140128_yyf
 //#include <car_navigation_msgs/BufferData.h>
 
-const float TrackWidth = 10;
+const float TrackWidth = 20;
 const float LaneWidth = 0.5;
 const float TrackLengthShow = 100;
 const float CenterLineLength = 10;		// length of one center line (white+blank)
