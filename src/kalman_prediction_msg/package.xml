@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>grid_navigation</name>
+  <name>kalman_prediction_msg</name>
   <version>0.0.0</version>
-  <description>The grid_navigation package</description>
+  <description>The kalman_prediction_msg package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/grid_navigation</url> -->
+  <!-- <url type="website">http://wiki.ros.org/kalman_prediction_msg</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -40,24 +40,17 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>opencv</build_depend>
+  <build_depend>message_generation</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>car_navigation_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
-  <build_depend>nav_msgs</build_depend>
-  <build_depend>visualization_msgs</build_depend>
-  <build_depend>e_motion_perception_msgs</build_depend>
-  <build_depend>message_filters</build_depend>
-  <run_depend>opencv</run_depend>
+  <run_depend>message_runtime</run_depend>
   <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>car_navigation_msgs</run_depend>
-  <run_depend>nav_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
-  <run_depend>visualization_msgs</run_depend>
-  <run_depend>e_motion_perception_msgs</run_depend>
-  <run_depend>message_filters</run_depend>
+
 
 
   <!-- The export tag contains other, unspecified, tags -->

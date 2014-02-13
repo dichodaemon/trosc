@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+Training = True # True or False
+
 import sys
 import os
 
@@ -10,7 +12,7 @@ import rospy
 import numpy as np
 
 from e_motion_perception_msgs.msg import Lane
-from car_navigation_msgs.msg import Control, Status, Obstacle, Obstacles
+from car_navigation_msgs.msg import Control, Status, Obstacle, Obstacles, BufferData
 
 import sysv_ipc
 import trosc
@@ -19,11 +21,11 @@ from math import *
 
 facade = None
 control = Control()
-lane_pub = rospy.Publisher( "road", Lane )
 status_pub = rospy.Publisher( "status", Status )
 obstacle_pub = rospy.Publisher( "obstacles", Obstacles )
-
-
+if Training == True:
+  control_pub = rospy.Publisher ( "control_train", Control )
+buf_pub = rospy.Publisher ( "buffer_data", BufferData)
 def facade_callback( event ):
   global facade
   global control
@@ -34,49 +36,51 @@ def facade_callback( event ):
   try:
     if facade == None:
       facade = trosc.Facade( 6000 )
-    s = facade.status
+
+    c, s, n, obstacles = facade.get_buffer
 
     status = Status()
     status.speed = s.speed
     status.rpm = s.rpm
     status.gear = s.gear
-    status.gear_ratio = s.gear_ratio
-    status.lower_gear_ratio = s.lower_gear_ratio
-    status.max_rpm = s.max_rpm
-    status.wheel_radius = s.wheel_radius
-    status.next_curvature = s.next_curvature
-    status.next_distance  = s.next_distance
+    status.pose.x = s.x
+    status.pose.y = s.y
+    status.pose.theta = s.yaw
     status_pub.publish( status )
 
-    l = Lane()
-    l.width = s.track_width
-    l.ch = s.track_curvature
-    l.cl = 0.0
-    l.car_position = 0
-    l.y0 = s.track_distance
-    l.relative_yaw = s.track_yaw
-    lane_pub.publish( l )
+    if Training == True:
+      control.steering = c.steering
+      control.acceleration = c.acceleration
+      control.brake = c.brake
+      control.gear = c.gear
+      control_pub.publish( control )   
+    else:
+      c = trosc.Command()
+      c.steering = 0 #control.steering
+      c.acceleration = 0.2 #control.acceleration
+      c.brake = 0 #control.brake
+      c.gear = 1 #control.gear
+      facade.command = c
 
-    c = trosc.Command()
-    c.steering = control.steering
-    c.acceleration = control.acceleration
-    c.brake = control.brake
-    c.gear = control.gear
-    facade.command = c
-
-    n, obstacles = facade.obstacles
     obs = Obstacles()
     for i in xrange( n ):
       o = Obstacle()
-      o.id = obstacles[i].id
+      o.id = i
       o.pose.x = obstacles[i].x
       o.pose.y = obstacles[i].y
       o.pose.theta = obstacles[i].theta
       o.speed = ( obstacles[i].vX ** 2 + obstacles[i].vY ** 2 ) ** 0.5
       o.width = obstacles[i].width
-      o.height = obstacles[i].height
+      o.height = obstacles[i].length
       obs.obstacles.append( o )
     obstacle_pub.publish( obs )
+
+    buf = BufferData()
+    buf.status = status
+    buf.control = control
+    buf.obstacles = obs
+    buf_pub.publish( buf )
+
   except sysv_ipc.ExistentialError:
     facade = None
 
@@ -90,7 +94,8 @@ def control_callback( c ):
 def listener():
   rospy.init_node( 'trosc' )
   rospy.Timer( rospy.Duration( 0.01 ), facade_callback )
-  rospy.Subscriber( "control", Control, control_callback )
+  if Training == False:
+    rospy.Subscriber( "control", Control, control_callback )
   rospy.spin()
 
 listener()
