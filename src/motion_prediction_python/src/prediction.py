@@ -7,12 +7,14 @@ import matplotlib.pyplot as plt
 from kalman import Kalman
 from car_navigation_msgs.msg import Obstacle, Obstacles
 from kalman_prediction_msg.msg import Prediction, Predictions, PredictionOneStep
+import sys
 
 pred_pub = rospy.Publisher( "prediction_new", Predictions)
 
+count = 0
 
 last_time = 0.0
-timeHorizon=20
+timeHorizon=50
 
 obstacle_dict = {}
 kalman_obj = []
@@ -22,7 +24,7 @@ factor = 0.0002
 
 #mean = np.array([0.0, 0.0, 0.0, 0.0])
 p = np.eye( 4 ) * 1.
-q = np.eye( 2 ) * 0.25
+q = np.eye( 2 ) * 0.05
 
 
 #Control error 
@@ -86,10 +88,10 @@ def kalman_update(observation_x, observation_y, id_number, delta_t):
   
   #Predict the mean and Sigma
   if delta_t != 0.0:
-    kalman_obj[id_number].predict(delta_t)
+    obstacle_dict[id_number].predict(delta_t)
   
   #update the mean and sigma
-  kalman_obj[id_number].update(observation)
+  obstacle_dict[id_number].update(observation)
 
 
 
@@ -97,11 +99,18 @@ def kalman_update(observation_x, observation_y, id_number, delta_t):
 def listener( o ):
   global timeHorizon
   global last_time
+  global count 
   
+  if count % 10 != 0:
+    count += 1
+    return  
+  count += 1
   if last_time == 0.0:
     delta_t = 0.0
   else:
     delta_t =  rospy.get_time() - last_time
+    
+  sys.stderr.write( "delta: %f\n"  % ( delta_t ) )
   last_time =  rospy.get_time()
   
   r = default_noise(factor)
@@ -112,23 +121,22 @@ def listener( o ):
     speed = oi.speed
     id_number = oi.id
 
-    if ~(str(id_number) in obstacle_dict):
-      obstacle_dict.update({str(id_number):id_number})
+    if not id_number in obstacle_dict:
       mean = np.array([observation_x, observation_y, 0.0, 0.0])
       obj = Kalman(mean, a, c, r, q, p)
-      kalman_obj.append(obj)
-
-    kalman_update(observation_x, observation_y, id_number, delta_t )
+      obstacle_dict[id_number] = obj
+    else:
+      kalman_update(observation_x, observation_y, id_number, delta_t )
   
-  #Now for each obstacle at every t, predict the future state,(say for 10 timeStep) 
+  #Now for each obstacle at every t, predict the future state,(say for 20 timeStep) 
   preds = Predictions()
   
   for i in range(0, len(obstacle_dict)):
     pred = Prediction()
     pred.id = i
     
-    mu = kalman_obj[i].get_mean()
-    sigma = kalman_obj[i].get_p()
+    mu = obstacle_dict[i].get_mean()
+    sigma = obstacle_dict[i].get_p()
     
     for j in range(0, timeHorizon):
       predonestep = PredictionOneStep()

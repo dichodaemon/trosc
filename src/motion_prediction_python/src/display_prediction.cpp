@@ -27,7 +27,7 @@
 
 
 #define PI 3.141592
-#define TS 20
+#define TS 50
 
 double offset = 0;
 double offset_step = 100;
@@ -134,7 +134,7 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
         {
            offset = (int(x/offset_step))*offset_step;
            //printf("%lf\t%f\n", x, offset);
-           x = x - offset;
+           //x = x - offset;
        }
         y = Mean.at<double>(0,1);
         t = Mean.at<double>(0,3)/Mean.at<double>(0,2);
@@ -147,7 +147,7 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
         Cov  = (Mat_<double>(2,2)<<predictiononestep.cov[0],predictiononestep.cov[1], predictiononestep.cov[4], predictiononestep.cov[5]);
         eigen(Cov,Eig);
         x = Mean.at<double>(0,0);
-        x = x - offset; 
+        //x = x - offset; 
         y = Mean.at<double>(0,1);
         t = Mean.at<double>(0,3)/Mean.at<double>(0,2);
         ColorEllipse = (Mat_<double>(3,1)<<0.0,(1.0/TS)*j, 0.0);
