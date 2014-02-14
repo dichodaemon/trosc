@@ -96,10 +96,9 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
 	
 	Mat Mean, Cov, Eig;
   int x,y,t;
-  
+  //
 	for(int i= 0;i< prediction.prediction.size(); i++){
-    
-    for(int j= 0; j<prediction.prediction[i].timeHorizon; j++){
+    for(int j= 0; j<prediction.prediction[i].tH; j++){
       const kalman_prediction_msg::PredictionOneStep& predictiononestep =  prediction.prediction[i].predictiononestep[j]; 
       
       if(j==0){
@@ -119,7 +118,7 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
         x = Mean.at<double>(0,0);
         y = Mean.at<double>(0,1);
         t = Mean.at<double>(0,3)/Mean.at<double>(0,2);
-        ColorEllipse = (Mat_<double>(3,1)<<0.0,(1.0/prediction.prediction[i].timeHorizon)*j, 0.0);
+        ColorEllipse = (Mat_<double>(3,1)<<0.0,(1.0/prediction.prediction[i].tH)*j, 0.0);
         markers.push_back(visualMarker(x, y, t, Eig.at<double>(0,0)*50, Eig.at<double>(0,1)*50, 3, count1++, "obstacle_coordinates",ColorEllipse));
       }
     }

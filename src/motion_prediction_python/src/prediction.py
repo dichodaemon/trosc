@@ -108,7 +108,7 @@ def listener( o ):
   for i in range(0, len(obstacle_dict)):
     pred = Prediction()
     pred.id = i
-    pred.timeHorizon = timeHorizon
+    pred.tH = timeHorizon
     
     mu = obstacle_dict[i].get_mean()
     sigma = obstacle_dict[i].get_p()
