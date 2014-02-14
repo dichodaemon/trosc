@@ -75,10 +75,10 @@ def compute_costmap( weights, feature_type, feature_params, x1, y1, x2, y2, cell
 
 def obstacle_callback( data ):
   parms = get_params()
-  age = rospy.get_rostime().to_sec() - data.header.stamp.to_sec()
-  if age >  parms.max_msg_age : 
-    sys.stderr.write( "Time: %f; Header: %f; Age: %f\n" % ( rospy.get_rostime().to_sec(), data.header.stamp.to_sec(), age ) )
-    return
+  #age = rospy.get_rostime().to_sec() - data.header.stamp.to_sec()
+  #if age >  parms.max_msg_age : 
+    #sys.stderr.write( "Time: %f; Header: %f; Age: %f\n" % ( rospy.get_rostime().to_sec(), data.header.stamp.to_sec(), age ) )
+    #return
 
   other = []
   for a in data.obstacles:
