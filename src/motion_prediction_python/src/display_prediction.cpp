@@ -5,6 +5,7 @@
 #include <geometry_msgs/Pose2D.h>
 #include <e_motion_perception_msgs/Lane.h>
 #include <car_navigation_msgs/Obstacles.h>
+#include <car_navigation_msgs/Status.h>
 #include <kalman_prediction_msg/Predictions.h>
 #include <kalman_prediction_msg/Prediction.h>
 #include <visualization_msgs/Marker.h>
@@ -42,6 +43,9 @@ const float CenterLineLength = 10;
 const float CenterLineFill = 5;
 float length = 0;
 int MinFlag;
+int hx, hy, ht;
+int widthhostcar = 3.0; 
+int heighthostcar = 5.0;
 
 
 
@@ -82,6 +86,11 @@ visualization_msgs::Marker visualMarker(double xpred,
  return marker;
 }
 
+void Callback_hostcar(const car_navigation_msgs::Status& status){
+  hx = status.pose.x;
+  hy = status.pose.y;
+  ht = status.pose.theta;
+}
 
 void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
 	
@@ -123,8 +132,11 @@ void Callback_prediction(const kalman_prediction_msg::Predictions& prediction){
       }
     }
 	}
+  
   markers.push_back(visualMarker( 0, TrackWidth/2.0, PI/2, LaneWidth, TrackLengthShow, 1, -1, "lane_coordinates", ColorLane));
 	markers.push_back(visualMarker( 0, -TrackWidth/2.0, PI/2, LaneWidth, TrackLengthShow, 1,  -2, "lane_coordinates", ColorLane));
+  markers.push_back(visualMarker( hx, hy, ht + PI/2, widthhostcar, heighthostcar, 1,  -5, "lane_coordinates", ColorCar));
+  
   visualization_msgs::MarkerArray markers_msg;
   markers_msg.markers = markers;
   visualpred_pub.publish(markers_msg);
@@ -135,6 +147,7 @@ int main(int argc, char*argv[]){
  ros::init(argc, argv, "displayPcoodrinate");
  ros::NodeHandle n;
  ros::Subscriber sb = n.subscribe("/prediction_new",1, Callback_prediction); ///Change the message topic as per requirements.
+ ros::Subscriber sh = n.subscribe("/status",1, Callback_hostcar); 
  visualpred_pub = n.advertise<visualization_msgs::MarkerArray>( "/ellipse_marker", 1000 );
  
  ros::spin();
