@@ -12,17 +12,13 @@ import sys
 pred_pub = rospy.Publisher( "prediction_new", Predictions)
 
 count = 0
-
 last_time = 0.0
-timeHorizon=50
+timeHorizon=20
 
 obstacle_dict = {}
-kalman_obj = []
 
 #Kalman Variable Initialization
 factor = 0.0002
-
-#mean = np.array([0.0, 0.0, 0.0, 0.0])
 p = np.eye( 4 ) * 1.
 q = np.eye( 2 ) * 0.05
 
@@ -61,35 +57,13 @@ class default_noise( object ):
     
 
 
-def publish_message(cov_xy, mean_array, id_no):
-  obs = Predictions()
-  (eigVal, eigVec) = np.linalg.eig(cov_xy)
-  ob = Prediction()
-  ob.id = id_no
-  ob.pose.x = mean_array[0] #just to check
-  ob.pose.y = mean_array[1] #just to check
-  ob.pose.theta = np.arctan2(mean_array[3], mean_array[2])
-  ob.xdot = mean_array[2]
-  ob.ydot = mean_array[3]
-  ob.eigx = eigVal[0]
-  ob.eigy = eigVal[1]
-  ob.tmajor = np.arctan2(eigVec[0][1],eigVec[0][0])
-  ob.tminor = np.arctan2(eigVec[1][1],eigVec[1][0])
-  obs.prediction.append( ob )
-  pred_pub.publish( obs )
-
-
-
-
-
 def kalman_update(observation_x, observation_y, id_number, delta_t):
   
   observation = np.array( [observation_x, observation_y] )
-  
   #Predict the mean and Sigma
   if delta_t != 0.0:
     obstacle_dict[id_number].predict(delta_t)
-  
+    
   #update the mean and sigma
   obstacle_dict[id_number].update(observation)
 
@@ -134,6 +108,7 @@ def listener( o ):
   for i in range(0, len(obstacle_dict)):
     pred = Prediction()
     pred.id = i
+    pred.timeHorizon = timeHorizon
     
     mu = obstacle_dict[i].get_mean()
     sigma = obstacle_dict[i].get_p()
@@ -151,13 +126,9 @@ def listener( o ):
     preds.prediction.append( pred )
   pred_pub.publish( preds )
       
-      
-      
 
 if __name__ == '__main__':
   rospy.init_node('prediction', anonymous = True)
   rospy.Subscriber("obstacles", Obstacles, listener)
   rospy.spin()
-  
-
   
