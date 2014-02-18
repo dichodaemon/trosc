@@ -184,7 +184,7 @@ Point3f CoordinateTranslation(const car_navigation_msgs::Obstacle& obstacle)
 {
 	Point3f p, pResult;
 	p.x = obstacle.pose.x;
-    p.y = obstacle.pose.y;
+  p.y = obstacle.pose.y;
 	p.z = obstacle.pose.theta;
 
 	float yaw = status.pose.theta;

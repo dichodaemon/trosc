@@ -111,6 +111,7 @@ include_directories(
 ## Declare a cpp executable
 # add_executable(motion_prediction_python_node src/motion_prediction_python_node.cpp)
 add_executable(display_Prediction src/display_prediction.cpp)
+add_executable(display_TPrediction src/display_Tprediction.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -122,7 +123,8 @@ add_executable(display_Prediction src/display_prediction.cpp)
 # )
 target_link_libraries(display_Prediction ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
  )
-
+target_link_libraries(display_TPrediction ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
+ )
 #############
 ## Install ##
 #############
