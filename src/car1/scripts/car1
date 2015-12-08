@@ -9,22 +9,20 @@ sys.path.append( path )
 import rospy
 import numpy as np
 
-from e_motion_perception_msgs.msg import Lane
 from car_navigation_msgs.msg import Control, Status
 
 import cars.car1 as car1
 
-lane   = None
 status = None
 control_pub = rospy.Publisher( "control", Control )
 
-def drive( lane, status ):
+def drive( status ):
   global control_pub
-  if lane.width != 0.0:
+  if status.track_width != 0.0:
     c = Control()
     mu = 3.5
 
-    desired_speed_1 = car1.max_speed( lane.ch, mu )
+    desired_speed_1 = car1.max_speed( status.track_curvature, mu )
     desired_speed_2 = car1.max_speed( status.next_curvature, mu )
     brake_distance_2 = car1.braking_distance( status.speed, desired_speed_2, mu )
 
@@ -38,48 +36,30 @@ def drive( lane, status ):
         desired_speed = desired_speed_2
         if status.speed > desired_speed_2 + 10:
           c.brake = 1.0
-    #if desired_speed > status.speed:
-      #sys.stderr.write( "Accelerating" )
-    #elif c.brake > 0.0:
-      #sys.stderr.write( "Braking" )
-    #else:
-      #sys.stderr.write( "Constant" )
-
-    #sys.stderr.write( " Next segment: %f Brake distance: %f\n" % ( status.next_distance, brake_distance_2 )  )
 
     c.acceleration = car1.acceleration(
       status.speed, desired_speed,
       status.gear_ratio, status.max_rpm, status.wheel_radius, status.rpm
     )
     c.steering = car1.steering( 
-      lane.relative_yaw, lane.ch, lane.y0, lane.width
+      status.track_yaw, status.track_curvature, status.track_distance, status.track_width
     )
     c.gear = car1.gear( 
       status.speed, status.gear, status.gear_ratio, status.lower_gear_ratio,
       status.max_rpm, status.wheel_radius
     )
-    #sys.stderr.write( "steering: %f, speed: %f, desired_speed_1: %f, desired_speed_2: %f, next_distance: %f, brake_distance_2: %f\n"  % ( c.steering, status.speed, desired_speed_1, desired_speed_2, status.next_distance, brake_distance_2 ) )
-    #sys.stderr.write( "acceleration: %f, speed: %f, desired speed: %ff\n"  % ( c.acceleration, status.speed, desired_speed ) )
     control_pub.publish( c )
 
 def status_callback( s ):
-  global lane
   global status
   status = s
-  if lane != None:
-    drive( lane, status )
-
-def lane_callback( l ):
-  global lane
-  global status
-  lane = l
-  #if status != None:
-    #drive( lane, status )
+  print status
+  if status.track_width != 0.0:
+    drive( status )
 
 def listener():
-  rospy.init_node( 'trosc' )
+  rospy.init_node( 'car1' )
   rospy.Subscriber( "status", Status, status_callback )
-  rospy.Subscriber( "road", Lane, lane_callback )
   rospy.spin()
 
 listener()

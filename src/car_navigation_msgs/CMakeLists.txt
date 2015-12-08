@@ -52,8 +52,6 @@ add_message_files(
   Status.msg
   Obstacle.msg
   Obstacles.msg
-  WayPoint.msg
-  WayPoints.msg
   BufferData.msg
 )
 

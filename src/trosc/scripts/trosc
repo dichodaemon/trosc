@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-Training = True # True or False
 
 import sys
 import os
@@ -23,9 +22,8 @@ facade = None
 control = Control()
 status_pub = rospy.Publisher( "status", Status )
 obstacle_pub = rospy.Publisher( "obstacles", Obstacles )
-if Training == True:
-  control_pub = rospy.Publisher ( "control_train", Control )
 buf_pub = rospy.Publisher ( "buffer_data", BufferData)
+
 def facade_callback( event ):
   global facade
   global control
@@ -46,21 +44,26 @@ def facade_callback( event ):
     status.pose.x = s.x
     status.pose.y = s.y
     status.pose.theta = s.yaw
+
+    status.gear_ratio = s.gear_ratio
+    status.lower_gear_ratio = s.lower_gear_ratio
+    status.max_rpm = s.max_rpm
+    status.wheel_radius = s.wheel_radius
+    status.track_yaw = s.track_yaw
+    status.track_distance = s.track_distance
+    status.track_curvature = s.track_curvature
+    status.track_width = s.track_width
+    status.next_curvature = s.next_curvature
+    status.next_distance = s.next_distance
+
     status_pub.publish( status )
 
-    if Training == True:
-      control.steering = c.steering
-      control.acceleration = c.acceleration
-      control.brake = c.brake
-      control.gear = c.gear
-      control_pub.publish( control )   
-    else:
-      c = trosc.Command()
-      c.steering = 0 #control.steering
-      c.acceleration = 0.2 #control.acceleration
-      c.brake = 0 #control.brake
-      c.gear = 1 #control.gear
-      facade.command = c
+    c = trosc.Command()
+    c.steering = control.steering
+    c.acceleration = control.acceleration
+    c.brake = control.brake
+    c.gear = control.gear
+    facade.command = c
 
     obs = Obstacles()
     for i in xrange( n ):
@@ -94,8 +97,7 @@ def control_callback( c ):
 def listener():
   rospy.init_node( 'trosc' )
   rospy.Timer( rospy.Duration( 0.01 ), facade_callback )
-  if Training == False:
-    rospy.Subscriber( "control", Control, control_callback )
+  rospy.Subscriber( "control", Control, control_callback )
   rospy.spin()
 
 listener()

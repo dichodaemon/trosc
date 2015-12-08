@@ -11,6 +11,16 @@ class Command( ctypes.Structure ):
 class Status( ctypes.Structure ):
   _fields_ = [ ( "rpm", ctypes.c_float ),
                ( "gear", ctypes.c_int ),
+               ( "gear_ratio", ctypes.c_float ),
+               ( "lower_gear_ratio", ctypes.c_float ),
+               ( "max_rpm", ctypes.c_float ),
+               ( "wheel_radius", ctypes.c_float ),
+               ( "track_yaw", ctypes.c_float ),
+               ( "track_distance", ctypes.c_float ),
+               ( "track_curvature", ctypes.c_float ),
+               ( "track_width", ctypes.c_float ),
+               ( "next_curvature", ctypes.c_float ),
+               ( "next_distance", ctypes.c_float ),
                ( "speed", ctypes.c_float ),
                ( "yaw", ctypes.c_float ),
                ( "x", ctypes.c_float ),
@@ -29,7 +39,7 @@ class Obstacle( ctypes.Structure ):
 class Buffer( ctypes.Structure ):
   _fields_ = [ ( "command", Command ), 
                ( "status", Status ),
-               ( "n_obstacles", ctypes.c_int ),
+               ( "n_obstacles", ctypes.c_ubyte ),
                ( "obstacles", Obstacle * 100 ) ]
 
 class Facade( object ):

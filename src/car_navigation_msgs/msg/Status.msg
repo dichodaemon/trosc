@@ -3,3 +3,13 @@ geometry_msgs/Pose2D pose
 float32 speed
 float32 rpm
 int32 gear
+float32 gear_ratio
+float32 lower_gear_ratio
+float32 max_rpm
+float32 wheel_radius
+float32 track_yaw
+float32 track_distance
+float32 track_curvature
+float32 track_width
+float32 next_curvature
+float32 next_distance
